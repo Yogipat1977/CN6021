@@ -194,11 +194,12 @@ def get_transforms(patch_size=(96, 96, 96)):
     
     return train_transforms, val_transforms
 
-def get_dataloaders(batch_size=1, patch_size=(64, 64, 64), num_workers=0):
+def get_dataloaders(batch_size=1, patch_size=(64, 64, 64), num_workers=4):
     """
     Creates and returns the PyTorch DataLoaders.
-    num_workers=0 is safest on AMD iGPUs to avoid multiprocessing RAM duplication.
+    num_workers=4 to speed up data fetching for dual RTX 3090 setups.
     """
+
     from monai.data import CacheDataset, DataLoader, Dataset
     
     train_files, val_files, test_files = download_and_prepare_dataset()

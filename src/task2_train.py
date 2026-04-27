@@ -200,9 +200,14 @@ def train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96)):
     print(f"   Train samples: {len(train_loader.dataset)}, Val samples: {len(val_loader.dataset)}")
     
     # 3. Model & Transfer Learning Initialization
-    model = Custom3DUNet(in_channels=4, out_classes=4, init_features=16)
+    model = Custom3DUNet(in_channels=4, out_classes=4, init_features=32)
     model = inflate_2d_to_3d_weights(model)
     model.to(device)
+    
+    if torch.cuda.device_count() > 1:
+        print(f"   ⚡ Activating multi-GPU training on {torch.cuda.device_count()} GPUs!")
+        model = nn.DataParallel(model)
+
     
     # 4. Optimizer, Scheduler, and Loss
     criterion = DiceFocalLoss()

@@ -31,17 +31,16 @@ def main():
 
     # ---- Step 2: Train Model ----
     from task2_train import train_model
-    # Memory-safe settings for AMD iGPU (Radeon 860M / shared VRAM):
-    #   batch_size=1  → single sample per step to minimise peak VRAM
-    #   patch_size=96 → larger context for better generalization, 32GB RAM handles this fine
-    model, history = train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96))
+    # Scaled up for multi-GPU 48GB VRAM setup (2x RTX 3090s)
+    model, history = train_model(epochs=50, batch_size=4, patch_size=(128, 128, 128))
     
     if model is None:
         return
 
     # ---- Step 3: Evaluate Model ----
     from task2_evaluate import evaluate_model
-    metrics = evaluate_model(model, patch_size=(96, 96, 96))
+    metrics = evaluate_model(model, patch_size=(128, 128, 128))
+
 
     # ---- Summary ----
     print("\n\n" + "█" * 60)
