@@ -10,6 +10,7 @@ import os
 import sys
 import gc
 import time
+import json
 import numpy as np
 import torch
 import torch.nn as nn
@@ -324,7 +325,12 @@ def train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96), patience=10):
         gc.collect()
 
     plot_training_monitoring(history)
+    
+    with open('task2_training_history.json', 'w') as f:
+        json.dump(history, f, indent=4)
+        
     print("\n   Training Complete! Monitoring visualizations saved to figures/")
+    print("   Training history saved to task2_training_history.json")
     
     # Restore best weights before returning
     if best_model_weights is not None:
