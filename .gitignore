@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environment
+venv/
+env/
+.env
+bin/
+lib/
+share/
+
+# Model Weights & Large Tensors
+*.pth
+*.pt
+*.bin
+*.h5
+
+# Medical Imaging Data (NIfTI)
+*.nii
+*.nii.gz
+
+# MacOS artifacts
+.DS_Store
+__MACOSX/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project specific
+figures/
+run_eval_only.py

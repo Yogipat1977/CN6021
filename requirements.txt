@@ -1,0 +1,14 @@
+# Core
+numpy
+matplotlib
+scipy
+pandas
+
+# Machine Learning
+torch
+torchvision
+monai
+
+# Data Loading
+nibabel
+kagglehub

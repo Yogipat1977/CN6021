@@ -1,0 +1,103 @@
+azeem2023:
+  type: Web
+  title: "Customer Churn Dataset"
+  author: "Muhammad Shahid Azeem"
+  url: "https://www.kaggle.com/datasets/muhammadshahidazeem/customer-churn-dataset"
+  date: 2023
+
+huang2012:
+  type: Article
+  title: "Customer churn prediction in telecommunications"
+  author: ["Bingquan Huang", "Mohand Tahar Kechadi", "Brian Buckley"]
+  date: 2012
+  parent:
+    type: Periodical
+    title: "Expert Systems with Applications"
+    volume: 39
+    issue: 1
+    page-range: 1-7
+
+lecun1998:
+  type: Article
+  title: "Efficient BackProp"
+  author: ["Yann LeCun", "Léon Bottou", "Genevieve B. Orr", "Klaus-Robert Müller"]
+  date: 1998
+  parent:
+    type: Periodical
+    title: "Neural Networks: Tricks of the Trade"
+    publisher: "Springer"
+    page-range: 9-50
+
+hornik1991:
+  type: Article
+  title: "Approximation capabilities of multilayer feedforward networks"
+  author: "Kurt Hornik"
+  date: 1991
+  parent:
+    type: Periodical
+    title: "Neural Networks"
+    volume: 4
+    issue: 2
+    page-range: 251-257
+
+kingma2015:
+  type: Article
+  title: "Adam: A Method for Stochastic Optimization"
+  author: ["Diederik P. Kingma", "Jimmy Ba"]
+  date: 2015
+  parent:
+    type: Proceedings
+    title: "International Conference on Learning Representations (ICLR)"
+
+potdar2017:
+  type: Article
+  title: "A Comparative Study of Categorical Variable Encoding Techniques for Neural Network Classifiers"
+  author: ["Kedar Potdar", "Taher S. Pardawala", "Carl D. Pai"]
+  date: 2017
+  parent:
+    type: Periodical
+    title: "International Journal of Computer Applications"
+    volume: 175
+    issue: 4
+    page-range: 7-9
+
+chawla2002:
+  type: Article
+  title: "SMOTE: Synthetic Minority Over-sampling Technique"
+  author: ["Nitesh V. Chawla", "Kevin W. Bowyer", "Lawrence O. Hall", "W. Philip Kegelmeyer"]
+  date: 2002
+  parent:
+    type: Periodical
+    title: "Journal of Artificial Intelligence Research"
+    volume: 16
+    page-range: 321-357
+
+lundberg2017:
+  type: Article
+  title: "A Unified Approach to Interpreting Model Predictions"
+  author: ["Scott M. Lundberg", "Su-In Lee"]
+  date: 2017
+  parent:
+    type: Proceedings
+    title: "Advances in Neural Information Processing Systems (NeurIPS)"
+    volume: 30
+
+breiman2001:
+  type: Article
+  title: "Random Forests"
+  author: "Leo Breiman"
+  date: 2001
+  parent:
+    type: Periodical
+    title: "Machine Learning"
+    volume: 45
+    issue: 1
+    page-range: 5-32
+
+little2019:
+  type: Book
+  title: "Statistical Analysis with Missing Data"
+  author: ["Roderick J.A. Little", "Donald B. Rubin"]
+  date: 2019
+  publisher: "John Wiley & Sons"
+  edition: 3
