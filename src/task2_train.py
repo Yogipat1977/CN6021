@@ -12,6 +12,7 @@ import gc
 import time
 import json
 import numpy as np
+from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -233,7 +234,8 @@ def train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96), patience=10):
         train_loss = 0.0
         optimizer.zero_grad()
         
-        for batch_idx, batch_data in enumerate(train_loader):
+        train_pbar = tqdm(train_loader, desc=f"Epoch {epoch+1:2d}/{epochs} [Train]", leave=False)
+        for batch_idx, batch_data in enumerate(train_pbar):
             if batch_idx == 0 and epoch == 0 and device.type == 'cuda':
                 if is_amd:
                     print("      (Note: The very first batch may take several minutes as ROCm compiles 3D convolution kernels. Please be patient...)")
@@ -292,7 +294,8 @@ def train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96), patience=10):
         model.eval()
         val_loss = 0.0
         with torch.no_grad():
-            for batch_data in val_loader:
+            val_pbar = tqdm(val_loader, desc=f"Epoch {epoch+1:2d}/{epochs} [Val]", leave=False)
+            for batch_data in val_pbar:
                 inputs = batch_data["image"].to(device, non_blocking=True)
                 labels = batch_data["label"].to(device, non_blocking=True)
                 logits = model(inputs)
