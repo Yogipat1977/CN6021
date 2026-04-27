@@ -235,7 +235,10 @@ def train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96), patience=10):
         
         for batch_idx, batch_data in enumerate(train_loader):
             if batch_idx == 0 and epoch == 0 and device.type == 'cuda':
-                print("      (Note: The very first batch may take several minutes as ROCm compiles 3D convolution kernels. Please be patient...)")
+                if is_amd:
+                    print("      (Note: The very first batch may take several minutes as ROCm compiles 3D convolution kernels. Please be patient...)")
+                else:
+                    print("      (Note: First batch initializing...)")
             
             inputs = batch_data["image"].to(device, non_blocking=True)
             labels = batch_data["label"].to(device, non_blocking=True)

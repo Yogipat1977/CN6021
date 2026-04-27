@@ -210,10 +210,10 @@ def get_dataloaders(batch_size=1, patch_size=(64, 64, 64), num_workers=cfg.TASK2
     train_transforms, val_transforms = get_transforms(patch_size)
     
     print("Creating datasets (caching metadata)...")
-    # Standard Dataset (not CacheDataset) to avoid high RAM usage on shared memory systems
-    train_ds = Dataset(data=train_files, transform=train_transforms)
-    val_ds = Dataset(data=val_files, transform=val_transforms)
-    test_ds = Dataset(data=test_files, transform=val_transforms)
+    # Utilizing CacheDataset to eliminate the CPU IO bottleneck (sawtooth GPU utilization)
+    train_ds = CacheDataset(data=train_files, transform=train_transforms, cache_rate=1.0, num_workers=num_workers)
+    val_ds = CacheDataset(data=val_files, transform=val_transforms, cache_rate=1.0, num_workers=num_workers)
+    test_ds = CacheDataset(data=test_files, transform=val_transforms, cache_rate=1.0, num_workers=num_workers)
     
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=num_workers,
                               pin_memory=False)  # pin_memory=False for iGPUs with shared RAM
