@@ -11,6 +11,7 @@ import os
 import sys
 import gc
 import torch
+import config as cfg
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -29,17 +30,21 @@ def main():
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
-    # ---- Step 2: Train Model ----
     from task2_train import train_model
-    # Scaled up for multi-GPU 48GB VRAM setup (2x RTX 3090s)
-    model, history = train_model(epochs=50, batch_size=4, patch_size=(128, 128, 128))
+    # Configuration is now pulled dynamically from src/config.py
+    model, history = train_model(
+        epochs=cfg.TASK2_EPOCHS, 
+        batch_size=cfg.TASK2_BATCH_SIZE, 
+        patch_size=cfg.TASK2_PATCH_SIZE,
+        patience=cfg.TASK2_PATIENCE
+    )
     
     if model is None:
         return
 
     # ---- Step 3: Evaluate Model ----
     from task2_evaluate import evaluate_model
-    metrics = evaluate_model(model, patch_size=(128, 128, 128))
+    metrics = evaluate_model(model, patch_size=cfg.TASK2_PATCH_SIZE)
 
 
     # ---- Summary ----

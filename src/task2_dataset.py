@@ -15,6 +15,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 import nibabel as nib
 import numpy as np
+import config as cfg
 
 # MONAI for 3D Medical Imaging augmentations and transforms
 from monai.transforms import (
@@ -194,10 +195,10 @@ def get_transforms(patch_size=(96, 96, 96)):
     
     return train_transforms, val_transforms
 
-def get_dataloaders(batch_size=1, patch_size=(64, 64, 64), num_workers=4):
+def get_dataloaders(batch_size=1, patch_size=(64, 64, 64), num_workers=cfg.TASK2_NUM_WORKERS):
     """
     Creates and returns the PyTorch DataLoaders.
-    num_workers=4 to speed up data fetching for dual RTX 3090 setups.
+    num_workers defaults to cfg.TASK2_NUM_WORKERS to speed up data fetching.
     """
 
     from monai.data import CacheDataset, DataLoader, Dataset

@@ -24,6 +24,7 @@ from eda import (BG_DARK, BG_PANEL, TEXT_PRIMARY, TEXT_SECONDARY,
                  GRID_COLOR, save_fig)
 from task2_model import Custom3DUNet, inflate_2d_to_3d_weights
 from task2_dataset import get_dataloaders
+import config as cfg
 
 # Apply theme
 plt.rcParams.update({
@@ -200,7 +201,7 @@ def train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96), patience=10):
     print(f"   Train samples: {len(train_loader.dataset)}, Val samples: {len(val_loader.dataset)}")
     
     # 3. Model & Transfer Learning Initialization
-    model = Custom3DUNet(in_channels=4, out_classes=4, init_features=32)
+    model = Custom3DUNet(in_channels=4, out_classes=4, init_features=cfg.TASK2_INIT_FEATURES)
     model = inflate_2d_to_3d_weights(model)
     model.to(device)
     
@@ -211,7 +212,7 @@ def train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96), patience=10):
     
     # 4. Optimizer, Scheduler, and Loss
     criterion = DiceFocalLoss()
-    optimizer = optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-3)
+    optimizer = optim.AdamW(model.parameters(), lr=cfg.TASK2_LEARNING_RATE, weight_decay=cfg.TASK2_WEIGHT_DECAY)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
     
     history = {'train_loss': [], 'val_loss': []}
@@ -220,7 +221,7 @@ def train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96), patience=10):
     patience_counter = 0
     
     # Gradient Accumulation to simulate larger effective batch size
-    accumulation_steps = 4 
+    accumulation_steps = cfg.TASK2_ACCUMULATION_STEPS
     
     print(f"\n   Config: batch={batch_size}, patch={patch_size}, accum={accumulation_steps}, AMP={use_amp}")
     print("   Starting Training Loop...")
