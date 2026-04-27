@@ -177,7 +177,7 @@ def _get_device():
 # TRAINING LOOP (ROCm / CUDA / MPS / CPU)
 # ============================================================================
 
-def train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96)):
+def train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96), patience=10):
     print("\n" + "▓" * 60)
     print("  TASK 2: Training 3D U-Net Model")
     print("▓" * 60)
@@ -217,6 +217,7 @@ def train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96)):
     history = {'train_loss': [], 'val_loss': []}
     best_val_loss = float('inf')
     best_model_weights = None
+    patience_counter = 0
     
     # Gradient Accumulation to simulate larger effective batch size
     accumulation_steps = 4 
@@ -308,6 +309,13 @@ def train_model(epochs=30, batch_size=1, patch_size=(96, 96, 96)):
             best_model_weights = {k: v.cpu().clone() for k, v in model.state_dict().items()}
             torch.save(best_model_weights, 'task2_best_model.pth')
             print(f"      → Saved new best model (Val Loss: {best_val_loss:.4f})")
+            patience_counter = 0
+        else:
+            patience_counter += 1
+            print(f"      → No improvement in validation loss (Patience: {patience_counter}/{patience})")
+            if patience_counter >= patience:
+                print(f"\n   🛑 Early stopping triggered at Epoch {epoch+1}!")
+                break
         
         # Memory cleanup between epochs
         if torch.cuda.is_available():
