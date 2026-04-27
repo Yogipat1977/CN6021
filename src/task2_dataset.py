@@ -216,11 +216,14 @@ def get_dataloaders(batch_size=1, patch_size=(64, 64, 64), num_workers=cfg.TASK2
     test_ds = CacheDataset(data=test_files, transform=val_transforms, cache_rate=1.0, num_workers=num_workers)
     
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=num_workers,
-                              pin_memory=False)  # pin_memory=False for iGPUs with shared RAM
+                              pin_memory=True, persistent_workers=(num_workers > 0), 
+                              prefetch_factor=4 if num_workers > 0 else None)
     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers,
-                            pin_memory=False)
+                            pin_memory=True, persistent_workers=(num_workers > 0),
+                            prefetch_factor=4 if num_workers > 0 else None)
     test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers,
-                             pin_memory=False)
+                             pin_memory=True, persistent_workers=(num_workers > 0),
+                             prefetch_factor=4 if num_workers > 0 else None)
     
     return train_loader, val_loader, test_loader, train_files, val_files, test_files
 

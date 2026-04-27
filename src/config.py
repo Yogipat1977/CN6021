@@ -10,7 +10,7 @@ without digging through the individual scripts.
 # ===================================================================
 
 # Hardware & Data Loading
-TASK2_NUM_WORKERS = 4         # Increase for fast GPUs (e.g., 4 or 8). Set to 0 for shared RAM/iGPUs.
+TASK2_NUM_WORKERS = 8         # Increased for fast GPUs (e.g., 4 or 8). Set to 0 for shared RAM/iGPUs.
 TASK2_BATCH_SIZE = 4          # Batch size per step. Decrease if Out of Memory (OOM) occurs.
 
 # Model Architecture
