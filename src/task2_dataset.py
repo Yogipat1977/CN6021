@@ -26,6 +26,7 @@ from monai.transforms import (
     Orientationd,
     ScaleIntensityRangePercentilesd,
     CropForegroundd,
+    SpatialPadd,
     RandCropByPosNegLabeld,
     RandAffined,
     RandFlipd,
@@ -146,6 +147,8 @@ def get_transforms(patch_size=(96, 96, 96)):
         # Normalize each modality independently
         ScaleIntensityRangePercentilesd(keys=["image"], lower=1, upper=99, b_min=0.0, b_max=1.0, clip=True, channel_wise=True),
         CropForegroundd(keys=["image", "label"], source_key="image"),
+        # Ensure the image is at least the size of the patch before random cropping
+        SpatialPadd(keys=["image", "label"], spatial_size=patch_size),
     ]
     
     # Training augmentations (memory-optimised)
