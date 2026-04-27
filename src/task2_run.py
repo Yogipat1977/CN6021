@@ -11,7 +11,11 @@ import os
 import sys
 import gc
 import torch
+import torch.multiprocessing
 import config as cfg
+
+# Fix for "RuntimeError: received 0 items of ancdata" during multi-worker data loading on Linux
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 sys.path.insert(0, os.path.dirname(__file__))
 
