@@ -12,7 +12,12 @@ import os
 import glob
 import kagglehub
 import torch
+import torch.multiprocessing
 from torch.utils.data import Dataset, DataLoader
+
+# Fix for "RuntimeError: unable to open shared memory object: Too many open files (24)"
+# Ensures PyTorch uses the file system instead of restricted file descriptors for workers
+torch.multiprocessing.set_sharing_strategy('file_system')
 import nibabel as nib
 import numpy as np
 import config as cfg
