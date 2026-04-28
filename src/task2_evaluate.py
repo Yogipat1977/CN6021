@@ -20,7 +20,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 from eda import (BG_DARK, BG_PANEL, TEXT_PRIMARY, TEXT_SECONDARY,
                  BLUE_LIGHT, BLUE_MID, BLUE_DARK, BLUE_PALE,
                  GRID_COLOR, save_fig)
-from task2_dataset import get_dataloaders
+from task2_dataset import get_test_dataloader
+import config as cfg
 
 # Apply theme
 plt.rcParams.update({
@@ -150,7 +151,7 @@ def evaluate_model(model, patch_size=(64, 64, 64)):
         device = torch.device("cpu")
     
     model.eval()
-    _, _, test_loader, _, _, _ = get_dataloaders(batch_size=1, patch_size=patch_size)
+    test_loader, _ = get_test_dataloader(batch_size=1, patch_size=patch_size)
     
     if len(test_loader.dataset) == 0:
         print("   No test data found. Exiting evaluation.")
@@ -205,4 +206,18 @@ def evaluate_model(model, patch_size=(64, 64, 64)):
     return {'dice': mean_dice, 'iou': mean_iou, 'hausdorff': mean_hd}
 
 if __name__ == "__main__":
-    print("Evaluation script ready. Must be run via run_all to receive trained model.")
+    print("Running Evaluation independently...")
+    from task2_model import Custom3DUNet
+    
+    # Load model architecture
+    model = Custom3DUNet(in_channels=4, out_classes=4, init_features=cfg.TASK2_INIT_FEATURES)
+    
+    # Load trained weights
+    weight_path = 'task2_best_model.pth'
+    if os.path.exists(weight_path):
+        print(f"Loading trained weights from {weight_path}")
+        model.load_state_dict(torch.load(weight_path, map_location='cpu'))
+    else:
+        print(f"Warning: {weight_path} not found. Evaluating with random initialization.")
+        
+    evaluate_model(model, patch_size=cfg.TASK2_PATCH_SIZE)

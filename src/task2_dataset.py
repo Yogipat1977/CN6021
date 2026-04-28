@@ -227,6 +227,25 @@ def get_dataloaders(batch_size=1, patch_size=(64, 64, 64), num_workers=cfg.TASK2
     
     return train_loader, val_loader, test_loader, train_files, val_files, test_files
 
+def get_test_dataloader(batch_size=1, patch_size=(64, 64, 64), num_workers=cfg.TASK2_NUM_WORKERS):
+    """
+    Creates and returns ONLY the PyTorch DataLoader for the test set.
+    Prevents reloading massive train/val datasets into RAM during evaluation.
+    """
+    from monai.data import CacheDataset, DataLoader
+    
+    _, _, test_files = download_and_prepare_dataset()
+    _, val_transforms = get_transforms(patch_size)
+    
+    print("Creating test dataset (caching metadata)...")
+    test_ds = CacheDataset(data=test_files, transform=val_transforms, cache_rate=1.0, num_workers=num_workers)
+    
+    test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers,
+                             pin_memory=True, persistent_workers=(num_workers > 0),
+                             prefetch_factor=4 if num_workers > 0 else None)
+                             
+    return test_loader, test_files
+
 if __name__ == "__main__":
     print("Testing Task 2 Data Pipeline...")
     train_loader, val_loader, test_loader, _, _, _ = get_dataloaders(batch_size=1, num_workers=0)
