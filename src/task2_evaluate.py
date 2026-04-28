@@ -150,6 +150,7 @@ def evaluate_model(model, patch_size=(64, 64, 64)):
     else:
         device = torch.device("cpu")
     
+    model = model.to(device)
     model.eval()
     test_loader, _ = get_test_dataloader(batch_size=1, patch_size=patch_size)
     
