@@ -216,7 +216,15 @@ if __name__ == "__main__":
     weight_path = 'task2_best_model.pth'
     if os.path.exists(weight_path):
         print(f"Loading trained weights from {weight_path}")
-        model.load_state_dict(torch.load(weight_path, map_location='cpu'))
+        state_dict = torch.load(weight_path, map_location='cpu')
+        
+        # Remove 'module.' prefix if model was trained with DataParallel
+        new_state_dict = {}
+        for k, v in state_dict.items():
+            name = k[7:] if k.startswith('module.') else k
+            new_state_dict[name] = v
+            
+        model.load_state_dict(new_state_dict)
     else:
         print(f"Warning: {weight_path} not found. Evaluating with random initialization.")
         
