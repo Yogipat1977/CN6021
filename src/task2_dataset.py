@@ -117,8 +117,9 @@ def download_and_prepare_dataset():
     print(f"Found {len(data_dicts)} valid patient volumes.")
     
     # Split into Train / Val / Test (80 / 10 / 10)
-    np.random.seed(42)
-    np.random.shuffle(data_dicts)
+    # Use isolated RandomState to prevent global seed changes from leaking data
+    rng = np.random.RandomState(42)
+    rng.shuffle(data_dicts)
     
     num_total = len(data_dicts)
     num_train = int(num_total * 0.8)
