@@ -13,6 +13,9 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import csv
+from scipy.ndimage import binary_erosion
+from scipy.spatial import cKDTree
 
 # MONAI imports
 from monai.data import Dataset, DataLoader
@@ -26,18 +29,58 @@ from task2_dataset import download_and_prepare_dataset
 from task2_model import Custom3DUNet
 import config as cfg
 
+def calc_metrics(pred, gt, class_val):
+    p = (pred == class_val)
+    g = (gt == class_val)
+    
+    tp = np.sum(p & g)
+    fp = np.sum(p & ~g)
+    fn = np.sum(~p & g)
+    tn = np.sum(~p & ~g)
+    
+    dice = 2.0 * tp / (2.0 * tp + fp + fn) if (2.0 * tp + fp + fn) > 0 else (1.0 if np.sum(g) == 0 else 0.0)
+    iou = tp / (tp + fp + fn) if (tp + fp + fn) > 0 else (1.0 if np.sum(g) == 0 else 0.0)
+    sensitivity = tp / (tp + fn) if (tp + fn) > 0 else (1.0 if np.sum(g) == 0 else 0.0)
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 1.0
+    
+    # HD95
+    if np.sum(p) == 0 and np.sum(g) == 0:
+        hd95 = 0.0
+    elif np.sum(p) == 0 or np.sum(g) == 0:
+        hd95 = np.nan
+    else:
+        try:
+            p_border = p ^ binary_erosion(p)
+            g_border = g ^ binary_erosion(g)
+            p_pts = np.argwhere(p_border)
+            g_pts = np.argwhere(g_border)
+            if len(p_pts) == 0 or len(g_pts) == 0:
+                hd95 = np.nan
+            else:
+                tree_g = cKDTree(g_pts)
+                dists_p_to_g, _ = tree_g.query(p_pts)
+                tree_p = cKDTree(p_pts)
+                dists_g_to_p, _ = tree_p.query(g_pts)
+                hd95 = np.percentile(np.concatenate([dists_p_to_g, dists_g_to_p]), 95)
+        except Exception:
+            hd95 = np.nan
+
+    return dice, iou, sensitivity, specificity, hd95
+
 def get_full_volume_transforms():
     """Transforms for loading the full 3D volume and resizing to 128x128x128."""
-    keys = ["flair", "t1", "t1ce", "t2"]
+    image_keys = ["flair", "t1", "t1ce", "t2"]
+    all_keys = image_keys + ["label"]
     return Compose([
-        LoadImaged(keys=keys),
-        EnsureChannelFirstd(keys=keys),
-        ConcatItemsd(keys=keys, name="image", dim=0),
+        LoadImaged(keys=all_keys),
+        EnsureChannelFirstd(keys=all_keys),
+        ConcatItemsd(keys=image_keys, name="image", dim=0),
         # Resize directly to 128x128x128 to prevent memory crashes and match expected model input
-        Resized(keys=["image"], spatial_size=(128, 128, 128)),
+        Resized(keys=["image"], spatial_size=(128, 128, 128), mode="trilinear"),
+        Resized(keys=["label"], spatial_size=(128, 128, 128), mode="nearest"),
         # Normalize
         ScaleIntensityRangePercentilesd(keys=["image"], lower=1, upper=99, b_min=0.0, b_max=1.0, clip=True, channel_wise=True),
-        EnsureTyped(keys=["image"]),
+        EnsureTyped(keys=["image", "label"]),
     ])
 
 def export_nifti_volumes(num_patients=3):
@@ -87,6 +130,10 @@ def export_nifti_volumes(num_patients=3):
     os.makedirs(out_dir, exist_ok=True)
     print(f"\nCreated output directory: {out_dir}/")
 
+    csv_file = os.path.join(out_dir, "predictions_metrics.csv")
+    csv_header = ["PatientID", "Class", "Dice", "IoU", "Sensitivity", "Specificity", "HD95"]
+    csv_rows = []
+
     # 4. Inference and Export
     print(f"\nStarting Sliding Window Inference on {len(test_files)} patients...")
     with torch.no_grad():
@@ -113,55 +160,42 @@ def export_nifti_volumes(num_patients=3):
             # Get predicted classes
             preds = torch.argmax(outputs, dim=1).squeeze(0).cpu().numpy()
             
+            # Ground truth
+            gt = batch["label"].squeeze(0).squeeze(0).cpu().numpy()
+            
             # Remap class 3 back to 4 to match standard BraTS format 
             # (0: Background, 1: Necrotic, 2: Edema, 4: Enhancing Tumor)
             preds[preds == 3] = 4
             
-            # Save as NIfTI (.nii.gz)
-            preds = preds.astype(np.uint8)
-            nii_img = nib.Nifti1Image(preds, affine)
+            # Evaluate classes: 1, 2, 4
+            for class_val, class_name in [(1, "NCR/NET"), (2, "ED"), (4, "ET")]:
+                d, iou, sens, spec, hd = calc_metrics(preds, gt, class_val)
+                csv_rows.append([patient_id, class_name, f"{d:.4f}", f"{iou:.4f}", f"{sens:.4f}", f"{spec:.4f}", f"{hd:.4f}"])
             
-            out_file = os.path.join(out_dir, f"{patient_id}_prediction.nii.gz")
-            nib.save(nii_img, out_file)
-            print(f"  Saved 3D volume -> {out_file}")
+            # Create a dedicated folder for this specific patient
+            patient_out_dir = os.path.join(out_dir, patient_id)
+            os.makedirs(patient_out_dir, exist_ok=True)
 
-            # Generate PNG Screenshots for the report
-            img_dir = "predictions_images"
-            os.makedirs(img_dir, exist_ok=True)
+            # Save Prediction as NIfTI (.nii.gz)
+            preds = preds.astype(np.uint8)
+            nib.save(nib.Nifti1Image(preds, affine), os.path.join(patient_out_dir, f"{patient_id}_prediction.nii.gz"))
             
-            # Extract FLAIR volume for background (channel 0 from inputs)
+            # Save Ground Truth as NIfTI
+            gt = gt.astype(np.uint8)
+            nib.save(nib.Nifti1Image(gt, affine), os.path.join(patient_out_dir, f"{patient_id}_gt.nii.gz"))
+            
+            # Save T2-FLAIR as NIfTI
             flair_vol = inputs[0, 0].cpu().numpy()
+            nib.save(nib.Nifti1Image(flair_vol, affine), os.path.join(patient_out_dir, f"{patient_id}_t2f.nii.gz"))
             
-            # Get middle slices
-            mid_z = preds.shape[2] // 2
-            mid_y = preds.shape[1] // 2
-            mid_x = preds.shape[0] // 2
-            
-            fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-            
-            # Axial (Z)
-            axes[0].imshow(flair_vol[:, :, mid_z].T, cmap='gray', origin='lower')
-            axes[0].imshow(preds[:, :, mid_z].T, cmap='nipy_spectral', alpha=0.4, origin='lower')
-            axes[0].set_title("Axial View")
-            axes[0].axis('off')
-            
-            # Coronal (Y)
-            axes[1].imshow(flair_vol[:, mid_y, :].T, cmap='gray', origin='lower')
-            axes[1].imshow(preds[:, mid_y, :].T, cmap='nipy_spectral', alpha=0.4, origin='lower')
-            axes[1].set_title("Coronal View")
-            axes[1].axis('off')
-            
-            # Sagittal (X)
-            axes[2].imshow(flair_vol[mid_x, :, :].T, cmap='gray', origin='lower')
-            axes[2].imshow(preds[mid_x, :, :].T, cmap='nipy_spectral', alpha=0.4, origin='lower')
-            axes[2].set_title("Sagittal View")
-            axes[2].axis('off')
-            
-            plt.tight_layout()
-            png_file = os.path.join(img_dir, f"{patient_id}_slices.png")
-            plt.savefig(png_file, dpi=150, bbox_inches='tight')
-            plt.close()
-            print(f"  Saved screenshots -> {png_file}")
+            print(f"  Saved Prediction, GT, and T2F 3D volumes to {patient_out_dir}/")
+
+    # Write CSV
+    with open(csv_file, mode='w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(csv_header)
+        writer.writerows(csv_rows)
+    print(f"\n  Saved metrics CSV -> {csv_file}")
 
     print("\n" + "█" * 60)
     print("  EXPORT COMPLETE!")
