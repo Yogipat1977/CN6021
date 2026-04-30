@@ -80,6 +80,8 @@ Task 2: 3D Brain Tumor Segmentation. Precise tumor delineation from MRI guides s
 
 Both systems rest on a modular, reproducible foundation centralized configuration, automated dataset acquisition, consistent dark-theme aesthetics, and eighteen Python modules spanning preprocessing, EDA, modeling, training, evaluation, interpretability, and clinical export. We resolve prototype-to-production friction through weighted losses, patch-based processing, mixed precision, cross-validation, and multi-modal explanation techniques. This report details methodology, presents findings, and charts future directions temporal sequence modeling for earlier churn warnings and vision transformers for long-range volumetric dependencies.
 
+#pagebreak()
+
 = Task 1: Customer Churn Prediction
 
 == Dataset and Data Strategy
@@ -105,9 +107,18 @@ Initial inspection revealed a well-structured dataset with minimal missing data.
 A critical business finding during our exploratory analysis was the *Generational Gap* in churn rates (@fig:cat_dist). Younger demographics exhibited significantly higher volatility and propensity to churn compared to older, more established customers. This generational divide suggests that retaining younger users requires more dynamic, flexible subscription models, whereas older users value stability and consistent support. Identifying this gap early allowed us to ensure our model correctly weighted age and tenure features.
 == Methodology
 
-The preprocessing pipeline involved removing arbitrary identifiers (CustomerID), handling missing values via listwise deletion, applying one-hot encoding (`drop_first=True`) for nominal variables to prevent multicollinearity, and standardizing features via `StandardScaler`.
+=== Feature Selection and Preprocessing
+The preprocessing pipeline addresses high dimensionality and data quality through four distinct stages:
+1. *Feature Selection*: CustomerID was removed as an arbitrary identifier with no predictive value. Correlation analysis confirmed weak inter-feature relationships, indicating independent signals without the need for aggressive dimensionality reduction like PCA, which would sacrifice the interpretability required by stakeholders.
+2. *Missing Value Handling*: Listwise deletion was applied to the negligible subset of incomplete rows, ensuring no synthetic noise was introduced via imputation.
+3. *One-Hot Encoding*: Categorical features (Gender, Subscription Type) were encoded using `drop_first=True` to eliminate the "dummy variable trap" while preserving non-ordinal categorical relationships.
+4. *Standardisation*: All features were scaled to zero mean and unit variance via `StandardScaler`, ensuring stable gradient descent during training.
 
-The shallow neural network was implemented entirely in NumPy. The architecture utilizes 12 input neurons, 64 hidden neurons with Tanh activation (chosen because it is zero-centred, mapping inputs to (−1, 1), ensuring unbiased gradient updates), and 1 output neuron with Sigmoid activation—totalling 897 parameters (12×64 + 64 + 64×1 + 1). We implemented the Adam optimiser #cite(<kingma2015>) from scratch to ensure adaptive per-parameter learning rates, converging faster than standard SGD. Class imbalance (56.7:43.3) was addressed through weighted binary cross-entropy loss, assigning weights inversely proportional to class frequency ($w_0 = 1.155$, $w_1 = 0.882$).
+=== Handling Non-Linear Relationships
+A shallow neural network was selected to model the complex, non-linear dependencies between customer features and churn. By utilizing a hidden layer with 64 neurons and Tanh activations, the network maps input features into a high-dimensional manifold where non-linear boundaries can be effectively learned. Per the Universal Approximation Theorem, this architecture is mathematically capable of approximating any continuous function, bridging the gap between simple linear models and computationally expensive deep networks.
+
+=== Implementation
+The network was implemented entirely in NumPy to satisfy resource constraints. The architecture utilizes 12 input neurons, 64 hidden neurons, and 1 output neuron with Sigmoid activation. We implemented the Adam optimiser #cite(<kingma2015>) from scratch to ensure adaptive per-parameter learning rates. Class imbalance (56.7:43.3) was addressed through weighted binary cross-entropy loss ($w_0 = 1.155$, $w_1 = 0.882$).
 
 == Hyperparameter Tuning
 
@@ -163,18 +174,59 @@ In a real business environment, the cost of a false negative (losing a customer)
 
 Lowering the threshold from the default 0.50 to 0.28 increases recall at a modest precision cost—a deliberate trade-off. The model can now identify 97.2% of at-risk customers before they churn, enabling targeted, cost-effective retention campaigns without over-allocating marketing resources. This directly translates mathematical probabilities into business value.
 
+== Interpretability Analysis
+
+To satisfy stakeholder interpretability requirements, we applied two complementary techniques to explain the model's decision-making process.
+
+=== Permutation Importance
+
+Permutation importance quantifies each feature's contribution by measuring the drop in F1-score when that feature's values are randomly shuffled, breaking its relationship with the target while preserving its distribution.
+
+#figure(
+  image("../figures/tuned_permutation_importance.png", width: 75%),
+  caption: [Permutation importance ranking. Support Calls dominates as the strongest predictive signal—shuffling it causes the largest F1-score degradation. Contract Length, Total Spend, and Age follow, confirming the behavioural and demographic drivers identified during EDA.],
+) <fig:perm_imp>
+
+The top four features—Support Calls, Contract Length, Total Spend, and Age—align with the Generational Gap finding: younger customers on short-term contracts with high support call volumes represent the highest churn risk. This provides a clear, actionable hierarchy for retention teams to prioritise intervention.
+
+=== SHAP Analysis
+
+SHAP (SHapley Additive exPlanations) values explain individual predictions by decomposing each output into additive feature contributions with strong theoretical guarantees from cooperative game theory. We used Kernel SHAP to approximate Shapley values for our NumPy network.
+
+#figure(
+  image("../figures/tuned_shap_summary.png", width: 85%),
+  caption: [SHAP summary plot. Each dot represents one customer's SHAP value for a given feature—red indicates high feature values, blue indicates low. High Support Calls (red) strongly push predictions toward churn (positive SHAP), while long Contract Lengths (blue) push toward retention (negative SHAP).],
+) <fig:shap>
+
+The SHAP summary confirms and refines the permutation importance findings: high Support Call counts consistently drive churn predictions, while long-term contracts and high Total Spend exert a stabilising retention effect. The red-blue colour split on Contract Length is particularly informative—short-term contracts (blue, low value) shift predictions toward churn, while annual contracts (red, high value) provide the strongest retention signal. This granular, feature-level insight enables the business to design targeted interventions: customers with high support calls on short contracts are the highest-priority retention cohort.
+
+#pagebreak()
+
 = Task 2: 3D Brain Tumor Segmentation
 
 == Dataset and Preprocessing
 
 Brain tumor segmentation from multi-modal 3D MRI scans is a critical challenge in modern medical imaging. For this task, we utilised the prestigious *BraTS 2020 Dataset* #cite(<brats2020>), sourced via Kaggle. It is the gold standard for multi-modal 3D brain tumor segmentation, containing four co-registered MRI sequences per patient (FLAIR, T1, T1ce, T2) and meticulously annotated expert ground truth masks demarcating the Necrotic core (NCR/NET), Edema (ED), and Enhancing tumor (ET).
 
+#figure(
+  image("../figures/task2_eda_3d_slices.png", width: 100%),
+  caption: [BraTS 2020 multi-modal MRI slices. Each patient dataset contains co-registered T1, T1ce, T2, and T2-FLAIR sequences. The expert ground truth (right) demarcates complex tumor morphology across axial, coronal, and sagittal planes.],
+) <fig:task2_eda>
+
 Processing full-resolution 3D medical images (240 × 240 × 155 voxels) presents extreme memory constraints. Our rigorous preprocessing pipeline involved:
 1. *Intensity Normalization*: Z-score normalization was independently applied exclusively to non-zero brain regions to standardise MRI intensities.
 2. *Patch-based Cropping*: We implemented a dynamic random $96 times 96 times 96$ sub-volume extraction strategy. This approach not only conserved GPU VRAM but also served as a robust data augmentation technique.
 3. *Class Balancing*: A custom sampling strategy ensured patches were equally drawn from tumor and background regions to prevent the model from collapsing into predicting only the dominant background class.
 
-== 3D U-Net Architecture
+== Methodology
+
+=== 3D Data Augmentation
+To improve model generalisation and mitigate the scarcity of expertly annotated 3D volumes, we implemented a robust online augmentation pipeline using `Monai`:
+- *Spatial Transforms*: Random 90-degree rotations and horizontal/vertical flips across all three axes to ensure rotation-invariant feature learning.
+- *Elastic Deformations*: Random 3D elastic deformations to simulate biological variability in tumor shape and brain anatomy.
+- *Intensity Augmentation*: Random Gaussian noise and intensity scaling to make the model robust to sensor noise and varied MRI acquisition protocols.
+
+=== 3D U-Net Architecture
 
 To tackle the complexities of spatial hierarchies in 3D volumetric data, we implemented a custom *3D U-Net* from scratch in PyTorch—a proven encoder-decoder architecture for biomedical image segmentation #cite(<ronneberger2015>). The model has 22.5M parameters with `init_features=32`.
 
@@ -190,18 +242,22 @@ As visualized in @fig:unet_arch, the architecture leverages:
 - *Skip Connections*: High-resolution feature maps from each encoder stage are concatenated directly into the corresponding decoder stage. This is critical for preserving fine tumor boundaries and small necrotic regions that would otherwise be lost during aggressive spatial downsampling.
 - *Output Head*: A final $1 times 1 times 1$ convolution maps the 32-channel feature volume to 4-class logits (background, NCR/NET, ED, ET).
 
+=== Hyperparameter Tuning Constraints
+
+Due to the extreme computational demands of 3D volumetric training (22.5M parameters processing $128^3$ patches), we were constrained to renting cloud GPU servers for a limited duration. Each 50-epoch training run consumed approximately 3 GPU-hours on a cloud instance, making systematic hyperparameter grid search infeasible within our resource budget. Consequently, we adopted architecture and loss function choices grounded in established literature—3D U-Net topology #cite(<ronneberger2015>), LeakyReLU activations, Dice-Focal loss—and validated a single configuration rather than sweeping over alternatives. We acknowledge that a formal hyperparameter search (over `init_features`, dropout probability, patch size, or learning rate) would likely yield further performance improvements and identify this as a primary direction for future work with expanded compute access.
+
 == Quantitative Results
 
 The model was evaluated on an unseen test cohort of 10 patients. Due to GPU memory constraints (consumer hardware), metrics are computed on $128 times 128 times 128$ sub-volume patches rather than full 240×240×155 volumes. Patch-level scores represent a lower bound on whole-brain performance, as edge patches containing partial anatomy score lower than centrally-sampled patches.
 
 #align(center)[
 #table(
-  columns: (auto, auto, auto, auto),
+  columns: (auto, auto, auto, auto, auto),
   stroke: 0.5pt,
-  [*Tumor Class*], [*Mean Dice*], [*Best (Patient)*], [*Worst (Patient)*],
-  [ET (Enhancing)], [0.62], [0.87 (#367)], [0.00 (#188)],
-  [ED (Edema)], [0.65], [0.88 (#055)], [0.09 (#320)],
-  [NCR/NET (Necrotic)], [0.36], [0.66 (#055)], [0.00 (#188, #190)],
+  [*Tumor Class*], [*Mean Dice*], [*Mean IoU*], [*Best (Patient)*], [*Worst (Patient)*],
+  [ET (Enhancing)], [0.62], [0.45], [0.87 (#367)], [0.00 (#188)],
+  [ED (Edema)], [0.65], [0.48], [0.88 (#055)], [0.09 (#320)],
+  [NCR/NET (Necrotic)], [0.36], [0.22], [0.66 (#055)], [0.00 (#188, #190)],
 )
 ]
 
@@ -226,9 +282,31 @@ Three methodological caveats apply to the reported metrics:
 2. *Hausdorff Distance approximation:* HD95 is computed on a 1,000-point random subsample of boundary voxels for computational feasibility, rather than the exact surface-distance computation. Reported HD95 values should be treated as estimates.
 3. *Limited test cohort:* 10 patients from a single dataset (BraTS 2020) provide meaningful evaluation but may not capture the full range of glioma presentations seen in clinical practice.
 
-=== Visual Predictions
+=== Qualitative Visualisation
 
-The qualitative performance is evident in the 3D spatial predictions compared directly against the expert ground truth annotations.
+The qualitative performance is evident in the 3D spatial predictions compared directly against the expert ground truth annotations. On well-performing patients, the model distinguishes edema from enhancing tumor with moderate spatial accuracy.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr),
+    gutter: 0.8em,
+    // Row 1: Patient 051
+    [ #align(center)[ #image("../figures/results_051_t2f.png", width: 90%) #text(8pt)[T2-FLAIR (051)] ] ],
+    [ #align(center)[ #image("../figures/results_051_gt.png", width: 90%) #text(8pt)[Ground Truth (051)] ] ],
+    [ #align(center)[ #image("../figures/results_051_test.png", width: 90%) #text(8pt)[Prediction (051)] ] ],
+    
+    // Row 2: Patient 055
+    [ #align(center)[ #image("../figures/results_055_t2f.png", width: 90%) #text(8pt)[T2-FLAIR (055)] ] ],
+    [ #align(center)[ #image("../figures/results_055_gt.png", width: 90%) #text(8pt)[Ground Truth (055)] ] ],
+    [ #align(center)[ #image("../figures/results_055_test.png", width: 90%) #text(8pt)[Prediction (055)] ] ],
+    
+    // Row 3: Patient 170
+    [ #align(center)[ #image("../figures/results_170_t2f.png", width: 90%) #text(8pt)[T2-FLAIR (170)] ] ],
+    [ #align(center)[ #image("../figures/results_170_gt.png", width: 90%) #text(8pt)[Ground Truth (170)] ] ],
+    [ #align(center)[ #image("../figures/results_170_test.png", width: 90%) #text(8pt)[Prediction (170)] ] ],
+  ),
+  caption: [Qualitative comparison across three representative test patients (051, 055, 170). Each row displays the multi-modal MRI input (T2-FLAIR), the corresponding expert ground truth mask, and the model's volumetric prediction. The 3D U-Net shows strong spatial agreement on edema (green) and enhancing tumor (blue) across varied tumor sizes.],
+) <fig:3x3_comp>
 
 #figure(
   grid(
@@ -236,21 +314,36 @@ The qualitative performance is evident in the 3D spatial predictions compared di
     gutter: 1.5em,
     [
       #align(center)[
-        #image("../pred_images/051/Test_051.png", height: 14em)
+        #image("../figures/results_051_3d_gt.png", height: 14em)
         #v(0.3em)
-        #text(9pt)[(a) Axial slice for Patient 051. The model accurately demarcates the edema (green) and enhancing tumor boundaries (blue).]
+        #text(9pt)[(a) 3D Ground Truth (051)]
       ]
     ],
     [
       #align(center)[
-        #image("../pred_images/055/3D_Test_055.png", height: 14em)
+        #image("../figures/results_051_3d_test.png", height: 14em)
         #v(0.3em)
-        #text(9pt)[(b) 3D render for Patient 055 demonstrating spatial segmentation quality across the complete volumetric structure.]
+        #text(9pt)[(b) 3D Prediction (051)]
       ]
     ],
   ),
-  caption: [Visual predictions for two representative test patients. Patient 051 shows strong axial slice agreement between prediction and ground truth. Patient 055 confirms coherent 3D volumetric segmentation from different viewing angles.],
-) <fig:visual_pred>
+  caption: [Volumetric 3D rendering for Patient 051. The prediction (b) reconstructs a coherent volumetric structure that matches the overall morphology and spatial extent of the expert annotation (a).],
+) <fig:3d_comp>
+
+#figure(
+  grid(
+    columns: (1fr, 1fr),
+    rows: (auto, auto),
+    gutter: 1em,
+    [ #align(center)[ #image("../figures/results_055_3d_et_gt.png", width: 90%) #text(8pt)[(a) ET Ground Truth (055)] ] ],
+    [ #align(center)[ #image("../figures/results_055_3d_et_test.png", width: 90%) #text(8pt)[(b) ET Prediction (055)] ] ],
+    [ #align(center)[ #image("../figures/results_055_3d_tc_gt.png", width: 90%) #text(8pt)[(c) TC Ground Truth (055)] ] ],
+    [ #align(center)[ #image("../figures/results_055_3d_tc_test.png", width: 90%) #text(8pt)[(d) TC Prediction (055)] ] ],
+  ),
+  caption: [Tumor sub-region breakdown for Patient 055. The top row compares Enhancing Tumor (ET) volumes, while the bottom row compares the broader Tumor Core (TC). The model captures the internal heterogeneity of the glioma while maintaining boundary smoothness.],
+) <fig:subregion_comp>
+
+#pagebreak()
 
 = Conclusion and Future Work
 

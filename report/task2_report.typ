@@ -58,7 +58,49 @@ The model achieves usable segmentation on well-defined tumors—patients 051, 05
 These results define a clear *minimum viable model* boundary: a 3D U-Net of this scale can segment typical enhancing tumor and edema on consumer hardware but cannot handle diffuse necrotic tissue or unusual presentations.
 
 === Qualitative Visualisation
-Visualizations (`task2_prediction_overlay.png`) display predictions overlaid on FLAIR MRI slices alongside ground truth. On well-performing patients, the model distinguishes edema from enhancing tumor with moderate spatial accuracy. Post-prediction 3D renderings confirm coherent volumetric segmentation in successful cases.
+Visualisations display predictions overlaid on FLAIR MRI slices alongside ground truth, as well as 3D volumetric reconstructions.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr),
+    gutter: 0.8em,
+    [ #align(center)[ #image("../figures/results_051_t2f.png", width: 90%) #text(8pt)[T2-FLAIR (051)] ] ],
+    [ #align(center)[ #image("../figures/results_051_gt.png", width: 90%) #text(8pt)[GT (051)] ] ],
+    [ #align(center)[ #image("../figures/results_051_test.png", width: 90%) #text(8pt)[Pred (051)] ] ],
+    
+    [ #align(center)[ #image("../figures/results_055_t2f.png", width: 90%) #text(8pt)[T2-FLAIR (055)] ] ],
+    [ #align(center)[ #image("../figures/results_055_gt.png", width: 90%) #text(8pt)[GT (055)] ] ],
+    [ #align(center)[ #image("../figures/results_055_test.png", width: 90%) #text(8pt)[Pred (055)] ] ],
+    
+    [ #align(center)[ #image("../figures/results_170_t2f.png", width: 90%) #text(8pt)[T2-FLAIR (170)] ] ],
+    [ #align(center)[ #image("../figures/results_170_gt.png", width: 90%) #text(8pt)[GT (170)] ] ],
+    [ #align(center)[ #image("../figures/results_170_test.png", width: 90%) #text(8pt)[Pred (170)] ] ],
+  ),
+  caption: [Qualitative comparisons (T2-FLAIR, GT, Prediction) for three successful cases.],
+) <fig:3x3_comp_task2>
+
+#figure(
+  grid(
+    columns: (1fr, 1fr),
+    gutter: 1.5em,
+    [ #align(center)[ #image("../figures/results_051_3d_gt.png", width: 90%) #text(9pt)[(a) 3D Ground Truth (051)] ] ],
+    [ #align(center)[ #image("../figures/results_051_3d_test.png", width: 90%) #text(9pt)[(b) 3D Prediction (051)] ] ],
+  ),
+  caption: [3D volumetric comparison (Patient 051).],
+) <fig:3d_comp_task2>
+
+#figure(
+  grid(
+    columns: (1fr, 1fr),
+    rows: (auto, auto),
+    gutter: 1em,
+    [ #align(center)[ #image("../figures/results_055_3d_et_gt.png", width: 90%) #text(8pt)[(a) ET GT (055)] ] ],
+    [ #align(center)[ #image("../figures/results_055_3d_et_test.png", width: 90%) #text(8pt)[(b) ET Test (055)] ] ],
+    [ #align(center)[ #image("../figures/results_055_3d_tc_gt.png", width: 90%) #text(8pt)[(c) TC GT (055)] ] ],
+    [ #align(center)[ #image("../figures/results_055_3d_tc_test.png", width: 90%) #text(8pt)[(d) TC Test (055)] ] ],
+  ),
+  caption: [Tumor sub-regions (ET and TC) for Patient 055.],
+) <fig:subregion_comp_task2>
 
 == Limitations
 
