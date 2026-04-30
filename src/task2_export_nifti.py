@@ -170,4 +170,4 @@ def export_nifti_volumes(num_patients=3):
     print("█" * 60 + "\n")
 
 if __name__ == "__main__":
-    export_nifti_volumes(num_patients=3)
+    export_nifti_volumes(num_patients=10)
