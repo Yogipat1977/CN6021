@@ -166,7 +166,15 @@ The model achieved strong validation performance (F1=0.9826, AUC=0.9974) but exh
 
 == Analysis of the Generalisation Gap
 
-The substantial gap between validation F1 (0.98) and test F1 (0.66) is a critical finding. Investigation reveals this stems from a _distribution shift_ between the training and test partitions of the dataset. The model learns the training distribution with near-perfect accuracy (CV F1=0.98 across 5 folds confirms this is not overfitting to a single split), but the test set appears drawn from a somewhat different distribution. This is a well-documented challenge in production ML systems and highlights the importance of evaluating on truly independent test data. The grid search over 27 configurations confirmed that no hyperparameter combination could bridge this gap, suggesting the issue is intrinsic to the data split rather than model architecture.
+The substantial gap between validation F1 (0.98) and test F1 (0.66) is a critical finding. Investigation reveals this stems from a _distribution shift_ between the training and test partitions of the dataset. The model learns the training distribution with near-perfect accuracy—stratified 5-fold CV scoring F1=0.98 across all folds confirms this is not overfitting to a single split—but the test set appears drawn from a different data-generating process.
+
+Several lines of evidence support this diagnosis:
+
+- The test behaviour (30,565 false positives, 99.6% recall, 49.9% precision) shows the model over-predicts the majority churn class—consistent with learning distribution-specific patterns that fail on shifted data.
+- A systematic grid search across 27 hyperparameter combinations (hidden sizes 16–64, learning rates 0.001–0.01, weight decay 0.001–0.05) found no configuration that bridged the test-set gap, confirming the issue is intrinsic to the data split rather than to model architecture or tuning.
+- Threshold optimisation on the validation set identified 0.31 as the F1-maximising threshold. However, this yielded no improvement on the test set (F1=0.6610 vs 0.6645 at default 0.5), demonstrating that optimal decision boundaries derived from the training distribution do not transfer to a differently-distributed test population.
+
+This is a well-documented challenge in production ML systems—models can appear perfect on internal validation yet fail on genuinely independent data. The finding highlights the critical importance of evaluating on representative, independently-sampled test data, and the need for continuous drift monitoring in deployment settings. Domain adaptation techniques or re-sampling to align train-test distributions would be necessary to close this gap.
 
 == Threshold Optimisation
 

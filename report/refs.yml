@@ -108,3 +108,13 @@ brats2020:
   author: "Kaggle"
   url: "https://www.kaggle.com/datasets/awsaf49/brats20-dataset-training-validation"
   date: 2020
+
+ronneberger2015:
+  type: Article
+  title: "U-Net: Convolutional Networks for Biomedical Image Segmentation"
+  author: ["Olaf Ronneberger", "Philipp Fischer", "Thomas Brox"]
+  date: 2015
+  parent:
+    type: Proceedings
+    title: "Medical Image Computing and Computer-Assisted Intervention (MICCAI)"
+    page-range: 234-241

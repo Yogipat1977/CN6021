@@ -1,0 +1,247 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 640">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="gradInput" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4facfe" />
+      <stop offset="100%" stop-color="#00f2fe" />
+    </linearGradient>
+    <linearGradient id="gradEnc1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00b894" />
+      <stop offset="100%" stop-color="#55efc4" />
+    </linearGradient>
+    <linearGradient id="gradEnc2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00a36c" />
+      <stop offset="100%" stop-color="#00cec9" />
+    </linearGradient>
+    <linearGradient id="gradEnc3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#008955" />
+      <stop offset="100%" stop-color="#00b894" />
+    </linearGradient>
+    <linearGradient id="gradEnc4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#006d44" />
+      <stop offset="100%" stop-color="#00a36c" />
+    </linearGradient>
+    <linearGradient id="gradBot" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6c5ce7" />
+      <stop offset="100%" stop-color="#a29bfe" />
+    </linearGradient>
+    <linearGradient id="gradDec4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e17055" />
+      <stop offset="100%" stop-color="#fab1a0" />
+    </linearGradient>
+    <linearGradient id="gradDec3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d63031" />
+      <stop offset="100%" stop-color="#e17055" />
+    </linearGradient>
+    <linearGradient id="gradDec2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b71c1c" />
+      <stop offset="100%" stop-color="#d63031" />
+    </linearGradient>
+    <linearGradient id="gradDec1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8e0000" />
+      <stop offset="100%" stop-color="#b71c1c" />
+    </linearGradient>
+    <linearGradient id="gradOutput" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdcb6e" />
+      <stop offset="100%" stop-color="#ffeaa7" />
+    </linearGradient>
+
+    <!-- Drop shadow -->
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="3" dy="4" stdDeviation="5" flood-color="#000" flood-opacity="0.4" />
+    </filter>
+    <filter id="shadowSection" x="-5%" y="-5%" width="115%" height="115%">
+      <feDropShadow dx="2" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.3" />
+    </filter>
+
+    <!-- Arrow markers -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ccc" />
+    </marker>
+    <marker id="arrowSkip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#fdcb6e" />
+    </marker>
+    <marker id="arrowDown" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#55efc4" />
+    </marker>
+    <marker id="arrowUp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#fab1a0" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#1a1a1d" rx="16" />
+
+  <!-- Title -->
+  <text x="650" y="38" font-family="sans-serif" font-size="22" font-weight="bold" fill="#fff" text-anchor="middle" letter-spacing="1.5">3D ResNet-Inflated U-Net Architecture</text>
+
+  <!-- Section backgrounds -->
+  <rect x="30" y="55" width="520" height="540" fill="#232529" rx="12" stroke="#00b894" stroke-width="1.5" stroke-opacity="0.5" filter="url(#shadowSection)" />
+  <text x="290" y="78" font-family="sans-serif" font-size="14" font-weight="bold" fill="#55efc4" text-anchor="middle" letter-spacing="0.5">Encoder (ResNet-18 Based)</text>
+
+  <rect x="740" y="55" width="530" height="540" fill="#232529" rx="12" stroke="#e17055" stroke-width="1.5" stroke-opacity="0.5" filter="url(#shadowSection)" />
+  <text x="1005" y="78" font-family="sans-serif" font-size="14" font-weight="bold" fill="#fab1a0" text-anchor="middle" letter-spacing="0.5">Decoder (Expansion)</text>
+
+  <!-- ======================== -->
+  <!-- INPUT -->
+  <!-- ======================== -->
+  <rect x="125" y="105" width="120" height="55" rx="8" fill="url(#gradInput)" filter="url(#shadow)" />
+  <text x="185" y="127" font-family="sans-serif" font-size="11" font-weight="bold" fill="#fff" text-anchor="middle">Input 3D MRI</text>
+  <text x="185" y="142" font-family="sans-serif" font-size="9" fill="#e0e0e0" text-anchor="middle">4 modalities, 128³</text>
+
+  <!-- Input → Stage 1 -->
+  <line x1="245" y1="133" x2="280" y2="133" stroke="#ccc" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- ======================== -->
+  <!-- ENCODER STAGES -->
+  <!-- ======================== -->
+
+  <!-- Encoder Stage 1: 32ch -->
+  <rect x="290" y="100" width="220" height="65" rx="8" fill="url(#gradEnc1)" filter="url(#shadow)" />
+  <text x="400" y="122" font-family="sans-serif" font-size="12" font-weight="bold" fill="#1a1a1d" text-anchor="middle">Stage 1 (inc)</text>
+  <text x="400" y="138" font-family="sans-serif" font-size="10" fill="#1a1a1d" text-anchor="middle">DoubleConv 3×3×3</text>
+  <text x="400" y="152" font-family="sans-serif" font-size="9" fill="#1a1a1d" text-anchor="middle">128×128×128, 32 ch</text>
+
+  <!-- MaxPool down arrow -->
+  <line x1="400" y1="165" x2="400" y2="190" stroke="#55efc4" stroke-width="2" marker-end="url(#arrowDown)" />
+  <text x="415" y="181" font-family="sans-serif" font-size="8" fill="#55efc4" text-anchor="start">MaxPool 2³</text>
+
+  <!-- Encoder Stage 2: 64ch -->
+  <rect x="290" y="195" width="220" height="65" rx="8" fill="url(#gradEnc2)" filter="url(#shadow)" />
+  <text x="400" y="217" font-family="sans-serif" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">Stage 2 (down1)</text>
+  <text x="400" y="233" font-family="sans-serif" font-size="10" fill="#e0e0e0" text-anchor="middle">DoubleConv 3×3×3</text>
+  <text x="400" y="247" font-family="sans-serif" font-size="9" fill="#e0e0e0" text-anchor="middle">64×64×64, 64 ch</text>
+
+  <line x1="400" y1="260" x2="400" y2="285" stroke="#55efc4" stroke-width="2" marker-end="url(#arrowDown)" />
+  <text x="415" y="276" font-family="sans-serif" font-size="8" fill="#55efc4" text-anchor="start">MaxPool 2³</text>
+
+  <!-- Encoder Stage 3: 128ch -->
+  <rect x="290" y="290" width="220" height="65" rx="8" fill="url(#gradEnc3)" filter="url(#shadow)" />
+  <text x="400" y="312" font-family="sans-serif" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">Stage 3 (down2)</text>
+  <text x="400" y="328" font-family="sans-serif" font-size="10" fill="#e0e0e0" text-anchor="middle">DoubleConv 3×3×3</text>
+  <text x="400" y="342" font-family="sans-serif" font-size="9" fill="#e0e0e0" text-anchor="middle">32×32×32, 128 ch</text>
+
+  <line x1="400" y1="355" x2="400" y2="380" stroke="#55efc4" stroke-width="2" marker-end="url(#arrowDown)" />
+  <text x="415" y="371" font-family="sans-serif" font-size="8" fill="#55efc4" text-anchor="start">MaxPool 2³</text>
+
+  <!-- Encoder Stage 4: 256ch -->
+  <rect x="290" y="385" width="220" height="65" rx="8" fill="url(#gradEnc4)" filter="url(#shadow)" />
+  <text x="400" y="407" font-family="sans-serif" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">Stage 4 (down3)</text>
+  <text x="400" y="423" font-family="sans-serif" font-size="10" fill="#e0e0e0" text-anchor="middle">DoubleConv 3×3×3</text>
+  <text x="400" y="437" font-family="sans-serif" font-size="9" fill="#e0e0e0" text-anchor="middle">16×16×16, 256 ch</text>
+
+  <line x1="400" y1="450" x2="400" y2="475" stroke="#55efc4" stroke-width="2" marker-end="url(#arrowDown)" />
+  <text x="415" y="466" font-family="sans-serif" font-size="8" fill="#55efc4" text-anchor="start">MaxPool 2³</text>
+
+  <!-- ======================== -->
+  <!-- BOTTLENECK (shared) -->
+  <!-- ======================== -->
+  <rect x="290" y="480" width="220" height="65" rx="8" fill="url(#gradBot)" filter="url(#shadow)" />
+  <text x="400" y="502" font-family="sans-serif" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">Bottleneck (down4)</text>
+  <text x="400" y="518" font-family="sans-serif" font-size="10" fill="#e0e0e0" text-anchor="middle">DoubleConv 3×3×3</text>
+  <text x="400" y="532" font-family="sans-serif" font-size="9" fill="#e0e0e0" text-anchor="middle">8×8×8, 512 ch</text>
+
+  <!-- Bottleneck → Decoder -->
+  <path d="M 510 513 L 890 513 L 890 450" fill="none" stroke="#a29bfe" stroke-width="3" marker-end="url(#arrow)" />
+  <text x="700" y="508" font-family="sans-serif" font-size="11" font-weight="bold" fill="#a29bfe" text-anchor="middle">Upsample + Concat</text>
+
+  <!-- ======================== -->
+  <!-- DECODER STAGES -->
+  <!-- ======================== -->
+
+  <!-- Decoder Stage 4: 256ch -->
+  <rect x="780" y="385" width="220" height="65" rx="8" fill="url(#gradDec4)" filter="url(#shadow)" />
+  <text x="890" y="407" font-family="sans-serif" font-size="12" font-weight="bold" fill="#1a1a1d" text-anchor="middle">Stage 4 (up1)</text>
+  <text x="890" y="423" font-family="sans-serif" font-size="10" fill="#1a1a1d" text-anchor="middle">ConvTranspose 2³ + DoubleConv</text>
+  <text x="890" y="437" font-family="sans-serif" font-size="9" fill="#1a1a1d" text-anchor="middle">16×16×16, 256 ch</text>
+
+  <line x1="890" y1="385" x2="890" y2="355" stroke="#fab1a0" stroke-width="2" marker-end="url(#arrowUp)" />
+  <text x="905" y="373" font-family="sans-serif" font-size="8" fill="#fab1a0" text-anchor="start">Upsample</text>
+
+  <!-- Decoder Stage 3: 128ch -->
+  <rect x="780" y="290" width="220" height="65" rx="8" fill="url(#gradDec3)" filter="url(#shadow)" />
+  <text x="890" y="312" font-family="sans-serif" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">Stage 3 (up2)</text>
+  <text x="890" y="328" font-family="sans-serif" font-size="10" fill="#e0e0e0" text-anchor="middle">ConvTranspose 2³ + DoubleConv</text>
+  <text x="890" y="342" font-family="sans-serif" font-size="9" fill="#e0e0e0" text-anchor="middle">32×32×32, 128 ch</text>
+
+  <line x1="890" y1="290" x2="890" y2="260" stroke="#fab1a0" stroke-width="2" marker-end="url(#arrowUp)" />
+  <text x="905" y="278" font-family="sans-serif" font-size="8" fill="#fab1a0" text-anchor="start">Upsample</text>
+
+  <!-- Decoder Stage 2: 64ch -->
+  <rect x="780" y="195" width="220" height="65" rx="8" fill="url(#gradDec2)" filter="url(#shadow)" />
+  <text x="890" y="217" font-family="sans-serif" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">Stage 2 (up3)</text>
+  <text x="890" y="233" font-family="sans-serif" font-size="10" fill="#e0e0e0" text-anchor="middle">ConvTranspose 2³ + DoubleConv</text>
+  <text x="890" y="247" font-family="sans-serif" font-size="9" fill="#e0e0e0" text-anchor="middle">64×64×64, 64 ch</text>
+
+  <line x1="890" y1="195" x2="890" y2="165" stroke="#fab1a0" stroke-width="2" marker-end="url(#arrowUp)" />
+  <text x="905" y="183" font-family="sans-serif" font-size="8" fill="#fab1a0" text-anchor="start">Upsample</text>
+
+  <!-- Decoder Stage 1: 32ch -->
+  <rect x="780" y="100" width="220" height="65" rx="8" fill="url(#gradDec1)" filter="url(#shadow)" />
+  <text x="890" y="122" font-family="sans-serif" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">Stage 1 (up4)</text>
+  <text x="890" y="138" font-family="sans-serif" font-size="10" fill="#e0e0e0" text-anchor="middle">ConvTranspose 2³ + DoubleConv</text>
+  <text x="890" y="152" font-family="sans-serif" font-size="9" fill="#e0e0e0" text-anchor="middle">128×128×128, 32 ch</text>
+
+  <!-- Decoder → Output -->
+  <line x1="1000" y1="133" x2="1055" y2="133" stroke="#ccc" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- ======================== -->
+  <!-- OUTPUT -->
+  <!-- ======================== -->
+  <rect x="1065" y="105" width="120" height="55" rx="8" fill="url(#gradOutput)" filter="url(#shadow)" />
+  <text x="1125" y="126" font-family="sans-serif" font-size="11" font-weight="bold" fill="#1a1a1d" text-anchor="middle">Segmentation</text>
+  <text x="1125" y="140" font-family="sans-serif" font-size="9" fill="#333" text-anchor="middle">Conv 1×1×1</text>
+  <text x="1125" y="152" font-family="sans-serif" font-size="9" fill="#333" text-anchor="middle">4 classes (128³)</text>
+
+  <!-- ======================== -->
+  <!-- SKIP CONNECTIONS -->
+  <!-- ======================== -->
+  <!-- Skip 1: 32ch -->
+  <path d="M 510 133 Q 645 125 780 133" fill="none" stroke="#fdcb6e" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arrowSkip)" />
+  <rect x="610" y="118" width="90" height="18" rx="4" fill="#1a1a1d" fill-opacity="0.75" />
+  <text x="655" y="131" font-family="sans-serif" font-size="9" font-weight="bold" fill="#fdcb6e" text-anchor="middle">Skip 32ch</text>
+
+  <!-- Skip 2: 64ch -->
+  <path d="M 510 228 Q 645 220 780 228" fill="none" stroke="#fdcb6e" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arrowSkip)" />
+  <rect x="610" y="213" width="90" height="18" rx="4" fill="#1a1a1d" fill-opacity="0.75" />
+  <text x="655" y="226" font-family="sans-serif" font-size="9" font-weight="bold" fill="#fdcb6e" text-anchor="middle">Skip 64ch</text>
+
+  <!-- Skip 3: 128ch -->
+  <path d="M 510 323 Q 645 315 780 323" fill="none" stroke="#fdcb6e" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arrowSkip)" />
+  <rect x="610" y="308" width="90" height="18" rx="4" fill="#1a1a1d" fill-opacity="0.75" />
+  <text x="655" y="321" font-family="sans-serif" font-size="9" font-weight="bold" fill="#fdcb6e" text-anchor="middle">Skip 128ch</text>
+
+  <!-- Skip 4: 256ch -->
+  <path d="M 510 418 Q 645 410 780 418" fill="none" stroke="#fdcb6e" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arrowSkip)" />
+  <rect x="610" y="403" width="90" height="18" rx="4" fill="#1a1a1d" fill-opacity="0.75" />
+  <text x="655" y="416" font-family="sans-serif" font-size="9" font-weight="bold" fill="#fdcb6e" text-anchor="middle">Skip 256ch</text>
+
+  <!-- Transfer Learning Annotation -->
+  <g transform="translate(30, 50)">
+    <rect x="0" y="500" width="240" height="40" rx="6" fill="#1a1a1d" stroke="#55efc4" stroke-width="1" />
+    <text x="120" y="515" font-family="sans-serif" font-size="9" font-weight="bold" fill="#55efc4" text-anchor="middle">Transfer Learning:</text>
+    <text x="120" y="528" font-family="sans-serif" font-size="8" fill="#e0e0e0" text-anchor="middle">2D ResNet-18 inflated to 3D Encoder</text>
+  </g>
+
+  <!-- ======================== -->
+  <!-- LEGEND -->
+  <!-- ======================== -->
+  <rect x="30" y="610" width="1240" height="1" fill="#444" />
+  <g transform="translate(100, 618)">
+    <rect x="0" y="0" width="14" height="10" rx="2" fill="url(#gradEnc1)" />
+    <text x="18" y="9" font-family="sans-serif" font-size="9" fill="#aaa" text-anchor="start">Encoder Block</text>
+  </g>
+  <g transform="translate(440, 618)">
+    <rect x="0" y="0" width="14" height="10" rx="2" fill="url(#gradDec4)" />
+    <text x="18" y="9" font-family="sans-serif" font-size="9" fill="#aaa" text-anchor="start">Decoder Block</text>
+  </g>
+  <g transform="translate(730, 618)">
+    <rect x="0" y="0" width="14" height="10" rx="2" fill="url(#gradBot)" />
+    <text x="18" y="9" font-family="sans-serif" font-size="9" fill="#aaa" text-anchor="start">Bottleneck</text>
+  </g>
+  <g transform="translate(980, 618)">
+    <line x1="0" y1="5" x2="20" y2="5" stroke="#fdcb6e" stroke-width="2.5" stroke-dasharray="6,4" />
+    <text x="24" y="9" font-family="sans-serif" font-size="9" fill="#aaa" text-anchor="start">Skip Connection (Concat)</text>
+  </g>
+
+</svg>
