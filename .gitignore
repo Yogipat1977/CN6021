@@ -20,7 +20,7 @@ share/
 
 # Medical Imaging Data (NIfTI)
 *.nii
-*.nii.gz
+.nii.gz
 
 # MacOS artifacts
 .DS_Store
