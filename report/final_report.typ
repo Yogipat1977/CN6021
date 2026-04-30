@@ -90,13 +90,20 @@ Customer churn prediction is a critical business problem for subscription-based 
 
 Initial inspection revealed a well-structured dataset with minimal missing data. The class distribution reveals that churned customers constitute the majority class (56.7%), requiring a weighted loss function during training to prevent naive majority-class predictions.
 
-#figure(
-  image("../figures/categorical_distributions.png", width: 85%),
-  caption: [Categorical feature distributions across churn states. Contract types and demographics reveal significant behavioral differences between retained and churned cohorts.],
-) <fig:cat_dist>
+#grid(
+  columns: (1fr, 1fr),
+  gutter: 1em,
+  [#figure(
+    image("../figures/categorical_distributions.png", width: 100%),
+    caption: [Categorical feature distributions across churn states. Contract types and demographics reveal significant behavioral differences between retained and churned cohorts.],
+  ) <fig:cat_dist>],
+  [#figure(
+    image("../figures/class_distribution.png", width: 100%),
+    caption: [Class distribution showing churned customers (56.7%) as the majority class, necessitating weighted loss to prevent naive predictions.],
+  ) <fig:class_dist>],
+)
 
 A critical business finding during our exploratory analysis was the *Generational Gap* in churn rates (@fig:cat_dist). Younger demographics exhibited significantly higher volatility and propensity to churn compared to older, more established customers. This generational divide suggests that retaining younger users requires more dynamic, flexible subscription models, whereas older users value stability and consistent support. Identifying this gap early allowed us to ensure our model correctly weighted age and tenure features.
-
 == Methodology
 
 The preprocessing pipeline involved removing arbitrary identifiers (CustomerID), handling missing values via listwise deletion, applying one-hot encoding (`drop_first=True`) for nominal variables to prevent multicollinearity, and standardizing features via `StandardScaler`.
