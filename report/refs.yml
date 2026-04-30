@@ -101,3 +101,10 @@ little2019:
   date: 2019
   publisher: "John Wiley & Sons"
   edition: 3
+
+brats2020:
+  type: Web
+  title: "Brain Tumor Segmentation (BraTS) 2020 Dataset"
+  author: "Kaggle"
+  url: "https://www.kaggle.com/datasets/awsaf49/brats20-dataset-training-validation"
+  date: 2020
