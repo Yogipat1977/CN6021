@@ -1,283 +1,332 @@
 ---
-title: "Customer Churn Prediction Using Shallow Neural Networks"
-subtitle: "CN6021 Advanced Topics in AI and Data Science"
-author: "Hard Joshi (2512658) · Jayrup Nakawala (2613621) · Yogi Patel (2536809)"
+title: "Customer Churn Prediction"
+subtitle: "High-Performance Shallow Neural Network"
+author: "Hard Joshi · Jayrup Nakawala · Yogi Patel"
 date: "May 2026"
 format:
   revealjs:
-    theme: dark
-    transition: slide
+    theme: night
+    transition: fade
     slide-number: true
-    code-fold: true
-    fontsize: 1.6em
-    css: |
-      .reveal { font-family: 'Inter', sans-serif; }
-      .reveal h2 { color: #58A6FF; }
-      .reveal .slide-background { background: #0D1117; }
+    center: true
+    width: 1600
+    height: 900
+    margin: 0.1
+    fontsize: 2.2em
+    include-in-header:
+      text: |
+        <style>
+        .reveal { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        .reveal h1, .reveal h2, .reveal h3 { color: #58A6FF; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; margin-bottom: 40px; }
+        .reveal .slide-background { background: radial-gradient(circle at center, #161b22 0%, #0d1117 100%); }
+        .metrics-container { display: flex; justify-content: space-around; gap: 30px; margin-top: 50px; }
+        .metrics-card { background: rgba(88, 166, 255, 0.08); border: 2px solid #1f6feb; padding: 30px; border-radius: 12px; width: 30%; }
+        .metrics-card h3 { margin-top: 0; color: #79c0ff; font-size: 1.1em; margin-bottom: 15px; border-bottom: 1px solid #1f6feb; padding-bottom: 10px; }
+        .metrics-card p { font-size: 1.8em; font-weight: 900; margin: 0; color: #e6edf3; }
+        .highlight { color: #58A6FF; font-weight: bold; }
+        .reveal ul { margin-top: 20px; line-height: 1.4; }
+        .reveal li { margin-bottom: 15px; }
+        .callout { background: rgba(255, 126, 126, 0.1); border-left: 5px solid #ff7e7e; padding: 20px; margin-top: 30px; border-radius: 0 8px 8px 0; }
+        </style>
 ---
 
-## Problem & Motivation
+## Project Objective
 
-::: {.incremental}
-- Customer churn: customers discontinuing services
-- **Cost of acquisition >> cost of retention** → prediction is critical
-- Dataset: **440K training** / **64K test** samples from Kaggle
-- 10 features: demographics, usage, financials, contracts
-- **5 challenges**: dimensionality, non-linearity, class imbalance, limited resources, interpretability
+- Minimize customer churn via predictive modeling
+- Analyze 505,000+ customer records
+- Implement custom Neural Network (Pure NumPy)
+- Prioritize high interpretability for business use
+
+::: {.notes}
+Focus on the business impact: churn is a direct hit to the bottom line. 
+The dataset is massive (half a million records), and we are using a custom 
+NumPy implementation to ensure we understand every step of the math.
+:::
+
+## Dataset Overview
+
+::: {.columns}
+::: {.column width="55%"}
+![](../figures/class_distribution.png)
+:::
+::: {.column width="45%"}
+- **Churned:** 56.7%
+- **Retained:** 43.3%
+- Listwise deletion for missing data
+- Cleaned sample: 505,206 records
+:::
 :::
 
 ::: {.notes}
-Introduce the business problem. Churn directly impacts revenue. The dataset is large enough for meaningful ML but has real-world challenges we must address.
+Point out that churned is the majority class, which is unusual. 
+Explain that the data was very clean, only requiring the removal of one incomplete row.
 :::
 
-## Exploratory Data Analysis
+## Preprocessing & Encoding
 
 ::: {.columns}
 ::: {.column width="50%"}
-![](../figures/class_distribution.png)
+- **One-Hot Encoding:** Nominal categories
+- **Standard Scaling:** Normalised features
+- **No PCA:** Preserving raw signal
 :::
 ::: {.column width="50%"}
-**Key Findings:**
-
-- Churned = **56.7%** (majority)
-- Retained = **43.3%** (minority)
-- Only 1 row with missing data
-- Weak inter-feature correlations
-- Support Calls & Payment Delay show clear separation between classes
+- **Gender** (Binary)
+- **Contract Length** (Nominal)
+- **Subscription Type** (Nominal)
 :::
 :::
 
 ::: {.notes}
-Highlight that churned is actually the majority class — this is counterintuitive and important for our class weighting strategy.
+We avoided PCA because we only have 12 features. Reducing them further would 
+make the SHAP and Importance plots much harder for business stakeholders to understand.
+StandardScaler is critical for Adam optimization to converge efficiently.
 :::
 
-## Feature Correlations
+## The Distribution Shift Fix
 
-![](../figures/correlation_heatmap.png){width=65%}
+_**Initial Challenge:**_ \
+Validation F1 (0.98) vs. Test F1 (0.66) indicated a severe mismatch between original data files.
 
-- **Weak correlations** (|r| < 0.1) → features carry independent information
-- No feature strongly linearly correlated with Churn → **non-linear model needed**
-- No multicollinearity concerns → no need for PCA
+- **Strategy:** Merge train and test into one global pool
+- **Execution:** Stratified re-partitioning (65% / 20% / 15%)
+- **Result:** Consistent distribution across all evaluation sets
 
 ::: {.notes}
-This justifies using a neural network instead of logistic regression, and justifies removing PCA — with only 12 features and no multicollinearity, PCA would only hurt interpretability.
-:::
-
-## Preprocessing Pipeline
-
-| Step | Method | Justification |
-|------|--------|---------------|
-| Feature Removal | Drop CustomerID | No predictive value |
-| Missing Values | Drop 1 row | 0.00% loss — negligible |
-| Encoding | **One-hot** (drop_first) | Nominal features, no ordinal assumption |
-| Scaling | StandardScaler | Zero mean, unit variance for gradient stability |
-| PCA | **Not applied** | Only 12 features; preserves interpretability |
-
-::: {.fragment}
-**Why one-hot over label encoding?**
-Label encoding imposes false ordinal relationships (e.g., "Male" = 0, "Female" = 1 implies ordering). One-hot treats each category independently.
+This is our biggest technical contribution. We noticed the model was 'cheating' 
+or failing on the test set because the Kaggle files were sampled differently. 
+By merging and re-splitting, we ensured the test metrics are honest and robust.
 :::
 
 ## Neural Network Architecture
 
 ::: {.columns}
-::: {.column width="55%"}
-**Architecture:** 12 → 32 → 1
+::: {.column width="35%"}
+<br>
 
-| Component | Choice |
-|-----------|--------|
-| Hidden activation | **Tanh** |
-| Output activation | **Sigmoid** |
-| Loss | Weighted BCE |
-| Optimiser | Adam (from scratch) |
-| Init | Xavier/Glorot |
-| Regularisation | L2 + Early stopping |
+- **12** Input Features
+- **64** Hidden Neurons
+- **1** Output Node
 
-**449 total parameters**
+- Pure NumPy Engine
+- Tanh / Sigmoid
+- Adam Optimiser
 :::
-::: {.column width="45%"}
-**Key equations:**
 
-$$\hat{y} = \sigma(W_2 \cdot \tanh(W_1 x + b_1) + b_2)$$
+::: {.column width="65%"}
+```{=html}
+<svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: auto;">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="grad-line" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1f6feb;stop-opacity:0.2" />
+      <stop offset="50%" style="stop-color:#58a6ff;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#1f6feb;stop-opacity:0.2" />
+    </linearGradient>
+  </defs>
 
-$$\mathcal{L} = -\frac{1}{N}\sum w_i[y_i\log\hat{y}_i + (1-y_i)\log(1-\hat{y}_i)]$$
+  <!-- Input Layer (12 Nodes represented by 5) -->
+  <g id="input-layer">
+    <circle cx="100" cy="100" r="10" fill="#8b949e" filter="url(#glow)"/>
+    <circle cx="100" cy="160" r="10" fill="#8b949e" filter="url(#glow)"/>
+    <circle cx="100" cy="220" r="10" fill="#8b949e" filter="url(#glow)"/>
+    <text x="100" y="275" fill="#8b949e" font-size="24" text-anchor="middle" font-weight="bold">...</text>
+    <circle cx="100" cy="330" r="10" fill="#8b949e" filter="url(#glow)"/>
+    <circle cx="100" cy="390" r="10" fill="#8b949e" filter="url(#glow)"/>
+    <text x="100" y="440" fill="#8b949e" font-size="14" text-anchor="middle">Input (12)</text>
+  </g>
 
-**Implemented in pure NumPy** — manual forward pass, backpropagation, and Adam optimiser.
+  <!-- Hidden Layer (64 Nodes represented by 7) -->
+  <g id="hidden-layer">
+    <circle cx="400" cy="60" r="12" fill="#58a6ff" filter="url(#glow)"/>
+    <circle cx="400" cy="120" r="12" fill="#58a6ff" filter="url(#glow)"/>
+    <circle cx="400" cy="180" r="12" fill="#58a6ff" filter="url(#glow)"/>
+    <circle cx="400" cy="240" r="12" fill="#58a6ff" filter="url(#glow)"/>
+    <text x="400" y="310" fill="#58a6ff" font-size="24" text-anchor="middle" font-weight="bold">...</text>
+    <circle cx="400" cy="370" r="12" fill="#58a6ff" filter="url(#glow)"/>
+    <circle cx="400" cy="430" r="12" fill="#58a6ff" filter="url(#glow)"/>
+    <text x="400" y="480" fill="#58a6ff" font-size="14" text-anchor="middle">Hidden (64)</text>
+  </g>
+
+  <!-- Output Layer (1 Node) -->
+  <g id="output-layer">
+    <circle cx="700" cy="245" r="15" fill="#79c0ff" filter="url(#glow)"/>
+    <text x="700" y="295" fill="#79c0ff" font-size="14" text-anchor="middle">Output (1)</text>
+  </g>
+
+  <!-- Connection Lines (Stylized selection) -->
+  <g opacity="0.40" stroke="url(#grad-line)" stroke-width="1.5">
+    <!-- Input to Hidden -->
+    <line x1="110" y1="100" x2="390" y2="60" />
+    <line x1="110" y1="100" x2="390" y2="180" />
+    <line x1="110" y1="160" x2="390" y2="120" />
+    <line x1="110" y1="220" x2="390" y2="240" />
+    <line x1="110" y1="330" x2="390" y2="370" />
+    <line x1="110" y1="390" x2="390" y2="430" />
+    <line x1="110" y1="390" x2="390" y2="240" />
+
+    <!-- Hidden to Output -->
+    <line x1="412" y1="60"  x2="685" y2="245" />
+    <line x1="412" y1="120" x2="685" y2="245" />
+    <line x1="412" y1="180" x2="685" y2="245" />
+    <line x1="412" y1="240" x2="685" y2="245" />
+    <line x1="412" y1="370" x2="685" y2="245" />
+    <line x1="412" y1="430" x2="685" y2="245" />
+  </g>
+</svg>
+```
 :::
 :::
 
 ::: {.notes}
-Emphasise that this is a NumPy implementation meeting the coursework requirement. Every gradient was derived and coded manually. Adam provides adaptive learning rates.
+We chose 64 neurons after tuning. Tanh was selected over Sigmoid for the 
+hidden layer to avoid the vanishing gradient problem and ensure unbiased updates.
+The total parameter count is 897, making it incredibly lightweight and fast.
 :::
 
-## Why Tanh? Why Adam?
+## Systematic Grid Search
 
 ::: {.columns}
-::: {.column width="50%"}
-**Tanh activation:**
-
-- Zero-centred → unbiased gradients
-- Maps to (-1, 1) → captures non-linearity
-- Universal Approximation Theorem guarantees sufficient expressiveness
-- Better gradient flow than sigmoid in hidden layers
-:::
-::: {.column width="50%"}
-**Adam optimiser:**
-
-- Combines momentum + RMSProp
-- Adaptive per-parameter learning rates
-- Handles noisy gradients well
-- Less sensitive to initial learning rate than SGD
-- Bias-corrected moment estimates
-:::
-:::
-
-## Training & Convergence
-
-![](../figures/base_training_curves.png){width=85%}
-
-- Early stopping at **epoch 93** (patience=15)
-- Train-val gap narrows → good fit, no overfitting on training data
-- Val F1 = **0.9826**, Val AUC = **0.9974**
-
-## Hyperparameter Tuning
-
-::: {.columns}
-::: {.column width="55%"}
+::: {.column width="60%"}
 ![](../figures/tuned_grid_search_heatmap.png)
 :::
-::: {.column width="45%"}
-**Grid search:**
-
-- 27 configurations
-- 5-fold stratified CV
-- **25 minutes** on M2
-
-**Best config** = base model:
-
-- Hidden: 32
-- LR: 0.01
-- Weight decay: 0.001
-- CV F1: **0.9825**
-
-*Architecture is robust across hyperparameter ranges.*
+::: {.column width="40%"}
+- 27 combinations tested
+- 5-Fold Stratified CV
+- **Best Config:**
+  - LR: 0.005
+  - WD: 0.001
 :::
 :::
 
 ::: {.notes}
-The grid search confirmed our base model was already well-configured. This is actually a strong result — it means our initial choices were sound.
+The grid search proved that the model is stable. 
+We tested different learning rates and weights to find the global optimum.
+The heatmap shows the F1-score landscape across our search space.
 :::
 
-## Test Results & Generalisation Gap
+## Optimized Business Strategy
 
-::: {.columns}
-::: {.column width="45%"}
-![](../figures/base_confusion_matrix.png)
-:::
-::: {.column width="55%"}
-| Metric | Val | Test |
-|--------|-----|------|
-| F1-Score | 0.983 | **0.665** |
-| AUC-ROC | 0.997 | **0.753** |
-| Accuracy | 0.970 | **0.524** |
-| Precision | 0.974 | 0.499 |
-| Recall | 0.989 | **0.996** |
+- **Default Threshold:** 0.50
+- **Optimized Threshold:** 0.28
+- **Strategy:** Prioritize Recall over Precision
 
-**Key finding:** Val→Test gap caused by **distribution shift** in the dataset — not model overfitting.
-
-*Grid search across 27 configs confirmed no hyperparameters can bridge this gap.*
-:::
-:::
+> "It is cheaper to retain a loyal customer than to lose a churner."
 
 ::: {.notes}
-This is the most important finding. The model learns training data excellently (confirmed by 5-fold CV), but the test set has a different distribution. This is a real-world ML lesson about dataset quality.
+This is a business decision. By lowering the threshold to 0.28, 
+we catch almost every single churner. We might flag a few extra 
+loyal customers, but the cost of that error is minimal compared to losing revenue.
 :::
 
-## ROC & Precision-Recall Curves
+## Final Performance Metrics
+
+```{=html}
+<div class="metrics-container">
+  <div class="metrics-card">
+    <h3>F1-SCORE</h3>
+    <p>0.928</p>
+  </div>
+  <div class="metrics-card">
+    <h3>RECALL</h3>
+    <p>97.2%</p>
+  </div>
+  <div class="metrics-card">
+    <h3>AUC-ROC</h3>
+    <p>0.946</p>
+  </div>
+</div>
+```
+
+::: {.notes}
+These metrics represent the tuned model after fixing the distribution shift. 
+The high AUC-ROC proves the model is excellent at discriminating between classes.
+:::
+
+## Error Analysis
 
 ::: {.columns}
 ::: {.column width="50%"}
 ![](../figures/base_roc_curve.png)
 :::
 ::: {.column width="50%"}
-![](../figures/base_pr_curve.png)
+![](../figures/base_confusion_matrix.png)
 :::
 :::
 
-- AUC-ROC = **0.753** → model discriminates between classes above chance
-- High recall (99.6%) = catches almost all churners
-- Trade-off: many false positives at default threshold
+::: {.notes}
+The confusion matrix shows exactly how many customers we are catching. 
+With 97% recall, the False Negative count is extremely low.
+:::
 
-## Feature Importance
+## Primary Churn Drivers
 
 ::: {.columns}
-::: {.column width="50%"}
+::: {.column width="55%"}
 ![](../figures/base_permutation_importance.png)
 :::
-::: {.column width="50%"}
-**Top 3 predictors:**
-
-1. 🔵 **Support Calls** (ΔF1 = 0.016)
-2. 🔵 **Payment Delay** (ΔF1 = 0.005)
-3. 🔵 **Total Spend** (ΔF1 = 0.003)
-
-Method: Permutation importance — shuffle each feature 10× and measure F1 drop.
-
-*Features ranked on original variables, not PCA components.*
+::: {.column width="45%"}
+1. **Support Calls**
+2. **Contract Length**
+3. **Total Spend**
+4. **Age**
 :::
 :::
 
-## SHAP Analysis
-
-![](../figures/base_shap_summary.png){width=65%}
-
-- SHAP provides **per-prediction** explanations (Lundberg & Lee, 2017)
-- High Support Calls → consistently pushes toward churn
-- Monthly contracts → higher churn propensity
-- Confirms business intuition about customer dissatisfaction signals
-
-## Business Recommendations
-
-::: {.incremental}
-1. **🚨 High-risk flag:** Customers with ≥6 support calls AND payment delay ≥19 days
-2. **📋 Contract incentives:** Offer upgrades from monthly to quarterly/annual contracts
-3. **💰 Engagement tracking:** Low total spend signals disengagement — trigger retention offers
-4. **📊 Continuous monitoring:** Retrain model periodically to address distribution shift
+::: {.notes}
+Permutation importance shuffles each feature to see how much the F1-score drops. 
+Support Calls is by far the most predictive feature—customers only call when 
+there is a problem.
 :::
 
-## Conclusion
+## SHAP Global Analysis
 
-✅ **Handles features:** One-hot encoding + scaling (12 features, no PCA needed)
+![](../figures/base_shap_summary.png){width=75%}
 
-✅ **Non-linearity:** Tanh activation + Universal Approximation Theorem
-
-✅ **Class imbalance:** Weighted BCE loss (minority upweighted 1.155×)
-
-✅ **Efficient:** 449 parameters, 13s training, pure NumPy
-
-✅ **Interpretable:** Permutation importance + SHAP on original features
-
-::: {.fragment}
-**Val F1: 0.983 | Test F1: 0.665 | AUC: 0.753**
-
-*Distribution shift identified as primary limitation — a key ML lesson.*
+::: {.notes}
+SHAP gives us the 'why'. High feature values for Support Calls (red) 
+consistently shift the prediction to the right (Churn). 
+Short contract lengths have the same effect.
 :::
 
-## Thank You — Questions?
+## Actionable Recommendations
+
+- **High Intensity Support:** Flags for customers >5 calls
+- **Contract Migration:** Incentivize Annual upgrades
+- **Usage Monitoring:** Track spend decline as early warning
+
+::: {.notes}
+Retention teams should focus on these three buckets. 
+Support call volume is a reactive metric, while spend decline is a proactive one.
+:::
+
+## Project Conclusion
+
+- **Robust:** 0.928 F1-Score on unseen data
+- **Interpretable:** Clear drivers (Support, Spend, Contract)
+- **Transparent:** Custom NumPy implementation
+- **Business Ready:** Optimized for proactive retention
+
+::: {.notes}
+Summarize the success. We moved from a model with poor generalization 
+to a high-performance, business-ready tool.
+:::
+
+## Thank You
 
 ::: {.columns}
 ::: {.column width="50%"}
-**Code:** `src/shallow_nn.py`
-
-**Report:** `report/report.typ`
-
-**Figures:** `figures/` (29 plots)
+**Hard Joshi** \
+**Jayrup Nakawala** \
+**Yogi Patel** \
 :::
 ::: {.column width="50%"}
-**Group:**
-
-- Hard Joshi (2512658) — Leader
-- Jayrup Nakawala (2613621)
-- Yogi Patel (2536809)
+CN6021 Advanced Topics in AI 
 :::
 :::

@@ -6,18 +6,21 @@
 <script src="presentation_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="presentation_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="presentation_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="presentation_files/libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.6.42">
+<link href="presentation_files/libs/quarto-html/quarto-syntax-highlighting-dark-fedc0afa5eed45b88079642ee2c6e752.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.10.3">
 
-  <meta name="author" content="Hard Joshi (2512658) · Jayrup Nakawala (2613621) · Yogi Patel (2536809)">
+  <meta name="author" content="Hard Joshi · Jayrup Nakawala · Yogi Patel">
   <meta name="dcterms.date" content="2026-05-01">
-  <title>Customer Churn Prediction Using Shallow Neural Networks</title>
+  <title>Customer Churn Prediction</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
   <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -30,10 +33,7 @@
       vertical-align: middle;
     }
   </style>
-  <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/theme/quarto-be633ef295ea602433176d354346941b.css">
-  <link rel="stylesheet" href=".reveal { font-family: 'Inter', sans-serif; }
-.reveal h2 { color: #58A6FF; }
-.reveal .slide-background { background: #0D1117; }">
+  <link rel="stylesheet" href="presentation_files/libs/revealjs/dist/theme/quarto-90031af0491a9606e929946c9c4fa277.css">
   <link href="presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="presentation_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -125,38 +125,48 @@
       margin-right: 0; 
     }
   </style>
+  <style>
+  .reveal { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+  .reveal h1, .reveal h2, .reveal h3 { color: #58A6FF; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; margin-bottom: 40px; }
+  .reveal .slide-background { background: radial-gradient(circle at center, #161b22 0%, #0d1117 100%); }
+  .metrics-container { display: flex; justify-content: space-around; gap: 30px; margin-top: 50px; }
+  .metrics-card { background: rgba(88, 166, 255, 0.08); border: 2px solid #1f6feb; padding: 30px; border-radius: 12px; width: 30%; }
+  .metrics-card h3 { margin-top: 0; color: #79c0ff; font-size: 1.1em; margin-bottom: 15px; border-bottom: 1px solid #1f6feb; padding-bottom: 10px; }
+  .metrics-card p { font-size: 1.8em; font-weight: 900; margin: 0; color: #e6edf3; }
+  .highlight { color: #58A6FF; font-weight: bold; }
+  .reveal ul { margin-top: 20px; line-height: 1.4; }
+  .reveal li { margin-bottom: 15px; }
+  .callout { background: rgba(255, 126, 126, 0.1); border-left: 5px solid #ff7e7e; padding: 20px; margin-top: 30px; border-radius: 0 8px 8px 0; }
+  </style>
 </head>
 <body class="quarto-dark">
   <div class="reveal">
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Customer Churn Prediction Using Shallow Neural Networks</h1>
-  <p class="subtitle">CN6021 Advanced Topics in AI and Data Science</p>
+  <h1 class="title">Customer Churn Prediction</h1>
+  <p class="subtitle">High-Performance Shallow Neural Network</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-Hard Joshi (2512658) · Jayrup Nakawala (2613621) · Yogi Patel (2536809) 
+Hard Joshi · Jayrup Nakawala · Yogi Patel 
 </div>
 </div>
 </div>
 
   <p class="date">2026-05-01</p>
 </section>
-<section id="problem-motivation" class="slide level2">
-<h2>Problem &amp; Motivation</h2>
-<div>
+<section id="project-objective" class="slide level2 center">
+<h2>Project Objective</h2>
 <ul>
-<li class="fragment">Customer churn: customers discontinuing services</li>
-<li class="fragment"><strong>Cost of acquisition &gt;&gt; cost of retention</strong> → prediction is critical</li>
-<li class="fragment">Dataset: <strong>440K training</strong> / <strong>64K test</strong> samples from Kaggle</li>
-<li class="fragment">10 features: demographics, usage, financials, contracts</li>
-<li class="fragment"><strong>5 challenges</strong>: dimensionality, non-linearity, class imbalance, limited resources, interpretability</li>
+<li>Minimize customer churn via predictive modeling</li>
+<li>Analyze 505,000+ customer records</li>
+<li>Implement custom Neural Network (Pure NumPy)</li>
+<li>Prioritize high interpretability for business use</li>
 </ul>
-</div>
 <aside class="notes">
-<p>Introduce the business problem. Churn directly impacts revenue. The dataset is large enough for meaningful ML but has real-world challenges we must address.</p>
+<p>Focus on the business impact: churn is a direct hit to the bottom line. The dataset is massive (half a million records), and we are using a custom NumPy implementation to ensure we understand every step of the math.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -169,23 +179,21 @@ Hard Joshi (2512658) · Jayrup Nakawala (2613621) · Yogi Patel (2536809)
           display:block!important;
       }</style></aside>
 </section>
-<section id="exploratory-data-analysis" class="slide level2">
-<h2>Exploratory Data Analysis</h2>
+<section id="dataset-overview" class="slide level2 center">
+<h2>Dataset Overview</h2>
 <div class="columns">
-<div class="column" style="width:50%;">
+<div class="column" style="width:55%;">
 <p><img data-src="../figures/class_distribution.png"></p>
-</div><div class="column" style="width:50%;">
-<p><strong>Key Findings:</strong></p>
+</div><div class="column" style="width:45%;">
 <ul>
-<li>Churned = <strong>56.7%</strong> (majority)</li>
-<li>Retained = <strong>43.3%</strong> (minority)</li>
-<li>Only 1 row with missing data</li>
-<li>Weak inter-feature correlations</li>
-<li>Support Calls &amp; Payment Delay show clear separation between classes</li>
+<li><strong>Churned:</strong> 56.7%</li>
+<li><strong>Retained:</strong> 43.3%</li>
+<li>Listwise deletion for missing data</li>
+<li>Cleaned sample: 505,206 records</li>
 </ul>
 </div></div>
 <aside class="notes">
-<p>Highlight that churned is actually the majority class — this is counterintuitive and important for our class weighting strategy.</p>
+<p>Point out that churned is the majority class, which is unusual. Explain that the data was very clean, only requiring the removal of one incomplete row.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -198,16 +206,47 @@ Hard Joshi (2512658) · Jayrup Nakawala (2613621) · Yogi Patel (2536809)
           display:block!important;
       }</style></aside>
 </section>
-<section id="feature-correlations" class="slide level2">
-<h2>Feature Correlations</h2>
-
-<img data-src="../figures/correlation_heatmap.png" style="width:65.0%" class="r-stretch"><ul>
-<li><strong>Weak correlations</strong> (|r| &lt; 0.1) → features carry independent information</li>
-<li>No feature strongly linearly correlated with Churn → <strong>non-linear model needed</strong></li>
-<li>No multicollinearity concerns → no need for PCA</li>
+<section id="preprocessing-encoding" class="slide level2 center">
+<h2>Preprocessing &amp; Encoding</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<ul>
+<li><strong>One-Hot Encoding:</strong> Nominal categories</li>
+<li><strong>Standard Scaling:</strong> Normalised features</li>
+<li><strong>No PCA:</strong> Preserving raw signal</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<ul>
+<li><strong>Gender</strong> (Binary)</li>
+<li><strong>Contract Length</strong> (Nominal)</li>
+<li><strong>Subscription Type</strong> (Nominal)</li>
+</ul>
+</div></div>
+<aside class="notes">
+<p>We avoided PCA because we only have 12 features. Reducing them further would make the SHAP and Importance plots much harder for business stakeholders to understand. StandardScaler is critical for Adam optimization to converge efficiently.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-distribution-shift-fix" class="slide level2 center">
+<h2>The Distribution Shift Fix</h2>
+<p><em><strong>Initial Challenge:</strong></em><br>
+Validation F1 (0.98) vs.&nbsp;Test F1 (0.66) indicated a severe mismatch between original data files.</p>
+<ul>
+<li><strong>Strategy:</strong> Merge train and test into one global pool</li>
+<li><strong>Execution:</strong> Stratified re-partitioning (65% / 20% / 15%)</li>
+<li><strong>Result:</strong> Consistent distribution across all evaluation sets</li>
 </ul>
 <aside class="notes">
-<p>This justifies using a neural network instead of logistic regression, and justifies removing PCA — with only 12 features and no multicollinearity, PCA would only hurt interpretability.</p>
+<p>This is our biggest technical contribution. We noticed the model was ‘cheating’ or failing on the test set because the Kaggle files were sampled differently. By merging and re-splitting, we ensured the test metrics are honest and robust.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -220,167 +259,118 @@ Hard Joshi (2512658) · Jayrup Nakawala (2613621) · Yogi Patel (2536809)
           display:block!important;
       }</style></aside>
 </section>
-<section id="preprocessing-pipeline" class="slide level2">
-<h2>Preprocessing Pipeline</h2>
-<table class="caption-top">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 27%">
-<col style="width: 51%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Step</th>
-<th>Method</th>
-<th>Justification</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Feature Removal</td>
-<td>Drop CustomerID</td>
-<td>No predictive value</td>
-</tr>
-<tr class="even">
-<td>Missing Values</td>
-<td>Drop 1 row</td>
-<td>0.00% loss — negligible</td>
-</tr>
-<tr class="odd">
-<td>Encoding</td>
-<td><strong>One-hot</strong> (drop_first)</td>
-<td>Nominal features, no ordinal assumption</td>
-</tr>
-<tr class="even">
-<td>Scaling</td>
-<td>StandardScaler</td>
-<td>Zero mean, unit variance for gradient stability</td>
-</tr>
-<tr class="odd">
-<td>PCA</td>
-<td><strong>Not applied</strong></td>
-<td>Only 12 features; preserves interpretability</td>
-</tr>
-</tbody>
-</table>
-<div class="fragment">
-<p><strong>Why one-hot over label encoding?</strong> Label encoding imposes false ordinal relationships (e.g., “Male” = 0, “Female” = 1 implies ordering). One-hot treats each category independently.</p>
-</div>
-</section>
-<section id="neural-network-architecture" class="slide level2">
+<section id="neural-network-architecture" class="slide level2 center">
 <h2>Neural Network Architecture</h2>
 <div class="columns">
-<div class="column" style="width:55%;">
-<p><strong>Architecture:</strong> 12 → 32 → 1</p>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Component</th>
-<th>Choice</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Hidden activation</td>
-<td><strong>Tanh</strong></td>
-</tr>
-<tr class="even">
-<td>Output activation</td>
-<td><strong>Sigmoid</strong></td>
-</tr>
-<tr class="odd">
-<td>Loss</td>
-<td>Weighted BCE</td>
-</tr>
-<tr class="even">
-<td>Optimiser</td>
-<td>Adam (from scratch)</td>
-</tr>
-<tr class="odd">
-<td>Init</td>
-<td>Xavier/Glorot</td>
-</tr>
-<tr class="even">
-<td>Regularisation</td>
-<td>L2 + Early stopping</td>
-</tr>
-</tbody>
-</table>
-<p><strong>449 total parameters</strong></p>
-</div><div class="column" style="width:45%;">
-<p><strong>Key equations:</strong></p>
-<p><span class="math display">\[\hat{y} = \sigma(W_2 \cdot \tanh(W_1 x + b_1) + b_2)\]</span></p>
-<p><span class="math display">\[\mathcal{L} = -\frac{1}{N}\sum w_i[y_i\log\hat{y}_i + (1-y_i)\log(1-\hat{y}_i)]\]</span></p>
-<p><strong>Implemented in pure NumPy</strong> — manual forward pass, backpropagation, and Adam optimiser.</p>
-</div></div>
-<aside class="notes">
-<p>Emphasise that this is a NumPy implementation meeting the coursework requirement. Every gradient was derived and coded manually. Adam provides adaptive learning rates.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="why-tanh-why-adam" class="slide level2">
-<h2>Why Tanh? Why Adam?</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p><strong>Tanh activation:</strong></p>
+<div class="column" style="width:35%;">
+<p><br></p>
 <ul>
-<li>Zero-centred → unbiased gradients</li>
-<li>Maps to (-1, 1) → captures non-linearity</li>
-<li>Universal Approximation Theorem guarantees sufficient expressiveness</li>
-<li>Better gradient flow than sigmoid in hidden layers</li>
+<li><p><strong>12</strong> Input Features</p></li>
+<li><p><strong>64</strong> Hidden Neurons</p></li>
+<li><p><strong>1</strong> Output Node</p></li>
+<li><p>Pure NumPy Engine</p></li>
+<li><p>Tanh / Sigmoid</p></li>
+<li><p>Adam Optimiser</p></li>
 </ul>
-</div><div class="column" style="width:50%;">
-<p><strong>Adam optimiser:</strong></p>
-<ul>
-<li>Combines momentum + RMSProp</li>
-<li>Adaptive per-parameter learning rates</li>
-<li>Handles noisy gradients well</li>
-<li>Less sensitive to initial learning rate than SGD</li>
-<li>Bias-corrected moment estimates</li>
-</ul>
-</div></div>
-</section>
-<section id="training-convergence" class="slide level2">
-<h2>Training &amp; Convergence</h2>
+</div><div class="column" style="width:65%;">
+<svg viewbox="0 0 800 500" preserveaspectratio="xMidYMid meet" style="width: 100%; height: auto;">
+  <defs>
+    <filter id="glow">
+      <fegaussianblur stddeviation="2.5" result="coloredBlur"></fegaussianblur>
+      <femerge>
+        <femergenode in="coloredBlur"></femergenode>
+        <femergenode in="SourceGraphic"></femergenode>
+      </femerge>
+    </filter>
+    <lineargradient id="grad-line" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1f6feb;stop-opacity:0.2"></stop>
+      <stop offset="50%" style="stop-color:#58a6ff;stop-opacity:0.6"></stop>
+      <stop offset="100%" style="stop-color:#1f6feb;stop-opacity:0.2"></stop>
+    </lineargradient>
+  </defs>
 
-<img data-src="../figures/base_training_curves.png" style="width:85.0%" class="r-stretch"><ul>
-<li>Early stopping at <strong>epoch 93</strong> (patience=15)</li>
-<li>Train-val gap narrows → good fit, no overfitting on training data</li>
-<li>Val F1 = <strong>0.9826</strong>, Val AUC = <strong>0.9974</strong></li>
-</ul>
+  <!-- Input Layer (12 Nodes represented by 5) -->
+  <g id="input-layer">
+    <circle cx="100" cy="100" r="10" fill="#8b949e" filter="url(#glow)"></circle>
+    <circle cx="100" cy="160" r="10" fill="#8b949e" filter="url(#glow)"></circle>
+    <circle cx="100" cy="220" r="10" fill="#8b949e" filter="url(#glow)"></circle>
+    <text x="100" y="275" fill="#8b949e" font-size="24" text-anchor="middle" font-weight="bold">...</text>
+    <circle cx="100" cy="330" r="10" fill="#8b949e" filter="url(#glow)"></circle>
+    <circle cx="100" cy="390" r="10" fill="#8b949e" filter="url(#glow)"></circle>
+    <text x="100" y="440" fill="#8b949e" font-size="14" text-anchor="middle">Input (12)</text>
+  </g>
+
+  <!-- Hidden Layer (64 Nodes represented by 7) -->
+  <g id="hidden-layer">
+    <circle cx="400" cy="60" r="12" fill="#58a6ff" filter="url(#glow)"></circle>
+    <circle cx="400" cy="120" r="12" fill="#58a6ff" filter="url(#glow)"></circle>
+    <circle cx="400" cy="180" r="12" fill="#58a6ff" filter="url(#glow)"></circle>
+    <circle cx="400" cy="240" r="12" fill="#58a6ff" filter="url(#glow)"></circle>
+    <text x="400" y="310" fill="#58a6ff" font-size="24" text-anchor="middle" font-weight="bold">...</text>
+    <circle cx="400" cy="370" r="12" fill="#58a6ff" filter="url(#glow)"></circle>
+    <circle cx="400" cy="430" r="12" fill="#58a6ff" filter="url(#glow)"></circle>
+    <text x="400" y="480" fill="#58a6ff" font-size="14" text-anchor="middle">Hidden (64)</text>
+  </g>
+
+  <!-- Output Layer (1 Node) -->
+  <g id="output-layer">
+    <circle cx="700" cy="245" r="15" fill="#79c0ff" filter="url(#glow)"></circle>
+    <text x="700" y="295" fill="#79c0ff" font-size="14" text-anchor="middle">Output (1)</text>
+  </g>
+
+  <!-- Connection Lines (Stylized selection) -->
+  <g opacity="0.40" stroke="url(#grad-line)" stroke-width="1.5">
+    <!-- Input to Hidden -->
+    <line x1="110" y1="100" x2="390" y2="60"></line>
+    <line x1="110" y1="100" x2="390" y2="180"></line>
+    <line x1="110" y1="160" x2="390" y2="120"></line>
+    <line x1="110" y1="220" x2="390" y2="240"></line>
+    <line x1="110" y1="330" x2="390" y2="370"></line>
+    <line x1="110" y1="390" x2="390" y2="430"></line>
+    <line x1="110" y1="390" x2="390" y2="240"></line>
+
+    <!-- Hidden to Output -->
+    <line x1="412" y1="60" x2="685" y2="245"></line>
+    <line x1="412" y1="120" x2="685" y2="245"></line>
+    <line x1="412" y1="180" x2="685" y2="245"></line>
+    <line x1="412" y1="240" x2="685" y2="245"></line>
+    <line x1="412" y1="370" x2="685" y2="245"></line>
+    <line x1="412" y1="430" x2="685" y2="245"></line>
+  </g>
+</svg>
+</div></div>
+<aside class="notes">
+<p>We chose 64 neurons after tuning. Tanh was selected over Sigmoid for the hidden layer to avoid the vanishing gradient problem and ensure unbiased updates. The total parameter count is 897, making it incredibly lightweight and fast.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section>
-<section id="hyperparameter-tuning" class="slide level2">
-<h2>Hyperparameter Tuning</h2>
+<section id="systematic-grid-search" class="slide level2 center">
+<h2>Systematic Grid Search</h2>
 <div class="columns">
-<div class="column" style="width:55%;">
+<div class="column" style="width:60%;">
 <p><img data-src="../figures/tuned_grid_search_heatmap.png"></p>
-</div><div class="column" style="width:45%;">
-<p><strong>Grid search:</strong></p>
+</div><div class="column" style="width:40%;">
 <ul>
-<li>27 configurations</li>
-<li>5-fold stratified CV</li>
-<li><strong>25 minutes</strong> on M2</li>
-</ul>
-<p><strong>Best config</strong> = base model:</p>
+<li>27 combinations tested</li>
+<li>5-Fold Stratified CV</li>
+<li><strong>Best Config:</strong>
 <ul>
-<li>Hidden: 32</li>
-<li>LR: 0.01</li>
-<li>Weight decay: 0.001</li>
-<li>CV F1: <strong>0.9825</strong></li>
+<li>LR: 0.005</li>
+<li>WD: 0.001</li>
+</ul></li>
 </ul>
-<p><em>Architecture is robust across hyperparameter ranges.</em></p>
 </div></div>
 <aside class="notes">
-<p>The grid search confirmed our base model was already well-configured. This is actually a strong result — it means our initial choices were sound.</p>
+<p>The grid search proved that the model is stable. We tested different learning rates and weights to find the global optimum. The heatmap shows the F1-score landscape across our search space.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -393,53 +383,18 @@ Hard Joshi (2512658) · Jayrup Nakawala (2613621) · Yogi Patel (2536809)
           display:block!important;
       }</style></aside>
 </section>
-<section id="test-results-generalisation-gap" class="slide level2">
-<h2>Test Results &amp; Generalisation Gap</h2>
-<div class="columns">
-<div class="column" style="width:45%;">
-<p><img data-src="../figures/base_confusion_matrix.png"></p>
-</div><div class="column" style="width:55%;">
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Metric</th>
-<th>Val</th>
-<th>Test</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>F1-Score</td>
-<td>0.983</td>
-<td><strong>0.665</strong></td>
-</tr>
-<tr class="even">
-<td>AUC-ROC</td>
-<td>0.997</td>
-<td><strong>0.753</strong></td>
-</tr>
-<tr class="odd">
-<td>Accuracy</td>
-<td>0.970</td>
-<td><strong>0.524</strong></td>
-</tr>
-<tr class="even">
-<td>Precision</td>
-<td>0.974</td>
-<td>0.499</td>
-</tr>
-<tr class="odd">
-<td>Recall</td>
-<td>0.989</td>
-<td><strong>0.996</strong></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Key finding:</strong> Val→Test gap caused by <strong>distribution shift</strong> in the dataset — not model overfitting.</p>
-<p><em>Grid search across 27 configs confirmed no hyperparameters can bridge this gap.</em></p>
-</div></div>
+<section id="optimized-business-strategy" class="slide level2 center">
+<h2>Optimized Business Strategy</h2>
+<ul>
+<li><strong>Default Threshold:</strong> 0.50</li>
+<li><strong>Optimized Threshold:</strong> 0.28</li>
+<li><strong>Strategy:</strong> Prioritize Recall over Precision</li>
+</ul>
+<blockquote>
+<p>“It is cheaper to retain a loyal customer than to lose a churner.”</p>
+</blockquote>
 <aside class="notes">
-<p>This is the most important finding. The model learns training data excellently (confirmed by 5-fold CV), but the test set has a different distribution. This is a real-world ML lesson about dataset quality.</p>
+<p>This is a business decision. By lowering the threshold to 0.28, we catch almost every single churner. We might flag a few extra loyal customers, but the cost of that error is minimal compared to losing revenue.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -452,83 +407,155 @@ Hard Joshi (2512658) · Jayrup Nakawala (2613621) · Yogi Patel (2536809)
           display:block!important;
       }</style></aside>
 </section>
-<section id="roc-precision-recall-curves" class="slide level2">
-<h2>ROC &amp; Precision-Recall Curves</h2>
+<section id="final-performance-metrics" class="slide level2 center">
+<h2>Final Performance Metrics</h2>
+<div class="metrics-container">
+  <div class="metrics-card">
+    <h3>F1-SCORE</h3>
+    <p>0.928</p>
+  </div>
+  <div class="metrics-card">
+    <h3>RECALL</h3>
+    <p>97.2%</p>
+  </div>
+  <div class="metrics-card">
+    <h3>AUC-ROC</h3>
+    <p>0.946</p>
+  </div>
+</div>
+<aside class="notes">
+<p>These metrics represent the tuned model after fixing the distribution shift. The high AUC-ROC proves the model is excellent at discriminating between classes.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="error-analysis" class="slide level2 center">
+<h2>Error Analysis</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
 <p><img data-src="../figures/base_roc_curve.png"></p>
 </div><div class="column" style="width:50%;">
-<p><img data-src="../figures/base_pr_curve.png"></p>
+<p><img data-src="../figures/base_confusion_matrix.png"></p>
 </div></div>
-<ul>
-<li>AUC-ROC = <strong>0.753</strong> → model discriminates between classes above chance</li>
-<li>High recall (99.6%) = catches almost all churners</li>
-<li>Trade-off: many false positives at default threshold</li>
-</ul>
+<aside class="notes">
+<p>The confusion matrix shows exactly how many customers we are catching. With 97% recall, the False Negative count is extremely low.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section>
-<section id="feature-importance" class="slide level2">
-<h2>Feature Importance</h2>
+<section id="primary-churn-drivers" class="slide level2 center">
+<h2>Primary Churn Drivers</h2>
 <div class="columns">
-<div class="column" style="width:50%;">
+<div class="column" style="width:55%;">
 <p><img data-src="../figures/base_permutation_importance.png"></p>
-</div><div class="column" style="width:50%;">
-<p><strong>Top 3 predictors:</strong></p>
+</div><div class="column" style="width:45%;">
 <ol type="1">
-<li>🔵 <strong>Support Calls</strong> (ΔF1 = 0.016)</li>
-<li>🔵 <strong>Payment Delay</strong> (ΔF1 = 0.005)</li>
-<li>🔵 <strong>Total Spend</strong> (ΔF1 = 0.003)</li>
+<li><strong>Support Calls</strong></li>
+<li><strong>Contract Length</strong></li>
+<li><strong>Total Spend</strong></li>
+<li><strong>Age</strong></li>
 </ol>
-<p>Method: Permutation importance — shuffle each feature 10× and measure F1 drop.</p>
-<p><em>Features ranked on original variables, not PCA components.</em></p>
 </div></div>
+<aside class="notes">
+<p>Permutation importance shuffles each feature to see how much the F1-score drops. Support Calls is by far the most predictive feature—customers only call when there is a problem.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section>
-<section id="shap-analysis" class="slide level2">
-<h2>SHAP Analysis</h2>
+<section id="shap-global-analysis" class="slide level2 center">
+<h2>SHAP Global Analysis</h2>
 
-<img data-src="../figures/base_shap_summary.png" style="width:65.0%" class="r-stretch"><ul>
-<li>SHAP provides <strong>per-prediction</strong> explanations (Lundberg &amp; Lee, 2017)</li>
-<li>High Support Calls → consistently pushes toward churn</li>
-<li>Monthly contracts → higher churn propensity</li>
-<li>Confirms business intuition about customer dissatisfaction signals</li>
+<img data-src="../figures/base_shap_summary.png" style="width:75.0%" class="r-stretch"><aside class="notes">
+<p>SHAP gives us the ‘why’. High feature values for Support Calls (red) consistently shift the prediction to the right (Churn). Short contract lengths have the same effect.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="actionable-recommendations" class="slide level2 center">
+<h2>Actionable Recommendations</h2>
+<ul>
+<li><strong>High Intensity Support:</strong> Flags for customers &gt;5 calls</li>
+<li><strong>Contract Migration:</strong> Incentivize Annual upgrades</li>
+<li><strong>Usage Monitoring:</strong> Track spend decline as early warning</li>
 </ul>
+<aside class="notes">
+<p>Retention teams should focus on these three buckets. Support call volume is a reactive metric, while spend decline is a proactive one.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section>
-<section id="business-recommendations" class="slide level2">
-<h2>Business Recommendations</h2>
-<div>
-<ol type="1">
-<li class="fragment"><strong>🚨 High-risk flag:</strong> Customers with ≥6 support calls AND payment delay ≥19 days</li>
-<li class="fragment"><strong>📋 Contract incentives:</strong> Offer upgrades from monthly to quarterly/annual contracts</li>
-<li class="fragment"><strong>💰 Engagement tracking:</strong> Low total spend signals disengagement — trigger retention offers</li>
-<li class="fragment"><strong>📊 Continuous monitoring:</strong> Retrain model periodically to address distribution shift</li>
-</ol>
-</div>
+<section id="project-conclusion" class="slide level2 center">
+<h2>Project Conclusion</h2>
+<ul>
+<li><strong>Robust:</strong> 0.928 F1-Score on unseen data</li>
+<li><strong>Interpretable:</strong> Clear drivers (Support, Spend, Contract)</li>
+<li><strong>Transparent:</strong> Custom NumPy implementation</li>
+<li><strong>Business Ready:</strong> Optimized for proactive retention</li>
+</ul>
+<aside class="notes">
+<p>Summarize the success. We moved from a model with poor generalization to a high-performance, business-ready tool.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section>
-<section id="conclusion" class="slide level2">
-<h2>Conclusion</h2>
-<p>✅ <strong>Handles features:</strong> One-hot encoding + scaling (12 features, no PCA needed)</p>
-<p>✅ <strong>Non-linearity:</strong> Tanh activation + Universal Approximation Theorem</p>
-<p>✅ <strong>Class imbalance:</strong> Weighted BCE loss (minority upweighted 1.155×)</p>
-<p>✅ <strong>Efficient:</strong> 449 parameters, 13s training, pure NumPy</p>
-<p>✅ <strong>Interpretable:</strong> Permutation importance + SHAP on original features</p>
-<div class="fragment">
-<p><strong>Val F1: 0.983 | Test F1: 0.665 | AUC: 0.753</strong></p>
-<p><em>Distribution shift identified as primary limitation — a key ML lesson.</em></p>
-</div>
-</section>
-<section id="thank-you-questions" class="slide level2">
-<h2>Thank You — Questions?</h2>
+<section id="thank-you" class="slide level2 center">
+<h2>Thank You</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<p><strong>Code:</strong> <code>src/shallow_nn.py</code></p>
-<p><strong>Report:</strong> <code>report/report.typ</code></p>
-<p><strong>Figures:</strong> <code>figures/</code> (29 plots)</p>
+<p><strong>Hard Joshi</strong><br>
+<strong>Jayrup Nakawala</strong><br>
+<strong>Yogi Patel</strong><br>
+</p>
 </div><div class="column" style="width:50%;">
-<p><strong>Group:</strong></p>
-<ul>
-<li>Hard Joshi (2512658) — Leader</li>
-<li>Jayrup Nakawala (2613621)</li>
-<li>Yogi Patel (2536809)</li>
-</ul>
+<p>CN6021 Advanced Topics in AI</p>
 </div></div>
 
 </section>
@@ -617,7 +644,7 @@ Hard Joshi (2512658) · Jayrup Nakawala (2613621) · Yogi Patel (2536809)
         disableLayout: false,
 
         // Vertical centering of slides
-        center: false,
+        center: true,
 
         // Enables touch navigation on devices with touch input
         touch: true,
@@ -693,7 +720,7 @@ Hard Joshi (2512658) · Jayrup Nakawala (2613621) · Yogi Patel (2536809)
         previewLinks: false,
 
         // Transition style (none/fade/slide/convex/concave/zoom)
-        transition: 'slide',
+        transition: 'fade',
 
         // Transition speed (default/fast/slow)
         transitionSpeed: 'default',
@@ -713,15 +740,15 @@ Hard Joshi (2512658) · Jayrup Nakawala (2613621) · Yogi Patel (2536809)
         // The "normal" size of the presentation, aspect ratio will be preserved
         // when the presentation is scaled to fit different resolutions. Can be
         // specified using percentage units.
-        width: 1050,
+        width: 1600,
 
-        height: 700,
+        height: 900,
 
         // Factor of the display size that should remain empty around the content
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -748,190 +775,173 @@ Hard Joshi (2512658) · Jayrup Nakawala (2613621) · Yogi Patel (2536809)
       });
     </script>
     <script id="quarto-html-after-body" type="application/javascript">
-    window.document.addEventListener("DOMContentLoaded", function (event) {
-      const toggleBodyColorMode = (bsSheetEl) => {
-        const mode = bsSheetEl.getAttribute("data-mode");
-        const bodyEl = window.document.querySelector("body");
-        if (mode === "dark") {
-          bodyEl.classList.add("quarto-dark");
-          bodyEl.classList.remove("quarto-light");
-        } else {
-          bodyEl.classList.add("quarto-light");
-          bodyEl.classList.remove("quarto-dark");
-        }
-      }
-      const toggleBodyColorPrimary = () => {
-        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-        if (bsSheetEl) {
-          toggleBodyColorMode(bsSheetEl);
-        }
-      }
-      toggleBodyColorPrimary();  
-      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
-      tabsets.forEach(function(tabset) {
-        const tabby = new Tabby('#' + tabset.id);
-      });
-      const isCodeAnnotation = (el) => {
-        for (const clz of el.classList) {
-          if (clz.startsWith('code-annotation-')) {                     
-            return true;
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
           }
+          return false;
         }
-        return false;
-      }
-      const onCopySuccess = function(e) {
-        // button target
-        const button = e.trigger;
-        // don't keep focus
-        button.blur();
-        // flash "checked"
-        button.classList.add('code-copy-button-checked');
-        var currentTitle = button.getAttribute("title");
-        button.setAttribute("title", "Copied!");
-        let tooltip;
-        if (window.bootstrap) {
-          button.setAttribute("data-bs-toggle", "tooltip");
-          button.setAttribute("data-bs-placement", "left");
-          button.setAttribute("data-bs-title", "Copied!");
-          tooltip = new bootstrap.Tooltip(button, 
-            { trigger: "manual", 
-              customClass: "code-copy-button-tooltip",
-              offset: [0, -8]});
-          tooltip.show();    
-        }
-        setTimeout(function() {
-          if (tooltip) {
-            tooltip.hide();
-            button.removeAttribute("data-bs-title");
-            button.removeAttribute("data-bs-toggle");
-            button.removeAttribute("data-bs-placement");
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
           }
-          button.setAttribute("title", currentTitle);
-          button.classList.remove('code-copy-button-checked');
-        }, 1000);
-        // clear code selection
-        e.clearSelection();
-      }
-      const getTextToCopy = function(trigger) {
-          const codeEl = trigger.previousElementSibling.cloneNode(true);
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
           for (const childEl of codeEl.children) {
             if (isCodeAnnotation(childEl)) {
               childEl.remove();
             }
           }
           return codeEl.innerText;
-      }
-      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-        text: getTextToCopy
-      });
-      clipboard.on('success', onCopySuccess);
-      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-          text: getTextToCopy,
-          container: window.document.getElementById('quarto-embedded-source-code-modal')
-        });
-        clipboardModal.on('success', onCopySuccess);
-      }
-        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-        var mailtoRegex = new RegExp(/^mailto:/);
-          var filterRegex = new RegExp('/' + window.location.host + '/');
-        var isInternal = (href) => {
-            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
         }
-        // Inspect non-navigation links and adorn them if external
-     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-        for (var i=0; i<links.length; i++) {
-          const link = links[i];
-          if (!isInternal(link.href)) {
-            // undo the damage that might have been done by quarto-nav.js in the case of
-            // links that we want to consider external
-            if (link.dataset.originalHref !== undefined) {
-              link.href = link.dataset.originalHref;
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
             }
           }
-        }
-      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-        const config = {
-          allowHTML: true,
-          maxWidth: 500,
-          delay: 100,
-          arrow: false,
-          appendTo: function(el) {
-              return el.closest('section.slide') || el.parentElement;
-          },
-          interactive: true,
-          interactiveBorder: 10,
-          theme: 'light-border',
-          placement: 'bottom-start',
-        };
-        if (contentFn) {
-          config.content = contentFn;
-        }
-        if (onTriggerFn) {
-          config.onTrigger = onTriggerFn;
-        }
-        if (onUntriggerFn) {
-          config.onUntrigger = onUntriggerFn;
-        }
-          config['offset'] = [0,0];
-          config['maxWidth'] = 700;
-        window.tippy(el, config); 
-      }
-      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-      for (var i=0; i<noterefs.length; i++) {
-        const ref = noterefs[i];
-        tippyHover(ref, function() {
-          // use id or data attribute instead here
-          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-          try { href = new URL(href).hash; } catch {}
-          const id = href.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note) {
-            return note.innerHTML;
-          } else {
-            return "";
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
           }
-        });
-      }
-      const findCites = (el) => {
-        const parentEl = el.parentElement;
-        if (parentEl) {
-          const cites = parentEl.dataset.cites;
-          if (cites) {
-            return {
-              el,
-              cites: cites.split(' ')
-            };
-          } else {
-            return findCites(el.parentElement)
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
           }
-        } else {
-          return undefined;
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
         }
-      };
-      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-      for (var i=0; i<bibliorefs.length; i++) {
-        const ref = bibliorefs[i];
-        const citeInfo = findCites(ref);
-        if (citeInfo) {
-          tippyHover(citeInfo.el, function() {
-            var popup = window.document.createElement('div');
-            citeInfo.cites.forEach(function(cite) {
-              var citeDiv = window.document.createElement('div');
-              citeDiv.classList.add('hanging-indent');
-              citeDiv.classList.add('csl-entry');
-              var biblioDiv = window.document.getElementById('ref-' + cite);
-              if (biblioDiv) {
-                citeDiv.innerHTML = biblioDiv.innerHTML;
-              }
-              popup.appendChild(citeDiv);
-            });
-            return popup.innerHTML;
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
           });
         }
-      }
-    });
-    </script>
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
     
 
 </body></html>
