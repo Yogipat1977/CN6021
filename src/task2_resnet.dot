@@ -1,0 +1,54 @@
+digraph G {
+    rankdir=LR;
+    node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=12];
+    edge [fontname="Helvetica", fontsize=10];
+
+    // Colors
+    node [fillcolor="#ecf0f1", color="#34495e", penwidth=2];
+
+    Input [label="Input\n4 Modalities\n(96x96x96)", fillcolor="#e8f8f5", color="#1abc9c"];
+    
+    subgraph cluster_encoder {
+        label = "3D ResNet Encoder";
+        style=dashed;
+        color="#7f8c8d";
+        
+        Conv1 [label="Conv3D (7x7x7)\nStride 2\nBN + ReLU", fillcolor="#ebdef0", color="#9b59b6"];
+        Pool1 [label="MaxPool3D (3x3x3)\nStride 2", fillcolor="#fadbd8", color="#e74c3c"];
+        
+        ResBlock1 [label="ResBlock 1\n(64 channels)", fillcolor="#d6eaf8", color="#3498db"];
+        ResBlock2 [label="ResBlock 2\n(128 channels)\nStride 2", fillcolor="#d6eaf8", color="#3498db"];
+        ResBlock3 [label="ResBlock 3\n(256 channels)\nStride 2", fillcolor="#d6eaf8", color="#3498db"];
+        ResBlock4 [label="ResBlock 4\n(512 channels)\nStride 2", fillcolor="#d6eaf8", color="#3498db"];
+    }
+
+    subgraph cluster_decoder {
+        label = "Decoder Pipeline";
+        style=dashed;
+        color="#7f8c8d";
+        
+        Up1 [label="ConvTranspose3D\n(256 channels)", fillcolor="#fcf3cf", color="#f1c40f"];
+        Up2 [label="ConvTranspose3D\n(128 channels)", fillcolor="#fcf3cf", color="#f1c40f"];
+        Up3 [label="ConvTranspose3D\n(64 channels)", fillcolor="#fcf3cf", color="#f1c40f"];
+        Up4 [label="ConvTranspose3D\n(32 channels)", fillcolor="#fcf3cf", color="#f1c40f"];
+        
+        OutConv [label="Conv3D (1x1x1)\n4 Classes", fillcolor="#e8f8f5", color="#1abc9c"];
+    }
+
+    Input -> Conv1 -> Pool1;
+    Pool1 -> ResBlock1 -> ResBlock2 -> ResBlock3 -> ResBlock4;
+    
+    ResBlock4 -> Up1;
+    ResBlock3 -> Up1 [label="Skip", style=dotted, constraint=false];
+    
+    Up1 -> Up2;
+    ResBlock2 -> Up2 [label="Skip", style=dotted, constraint=false];
+    
+    Up2 -> Up3;
+    ResBlock1 -> Up3 [label="Skip", style=dotted, constraint=false];
+    
+    Up3 -> Up4;
+    Pool1 -> Up4 [label="Skip", style=dotted, constraint=false];
+    
+    Up4 -> OutConv;
+}

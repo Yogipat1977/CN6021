@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400">
+  <defs>
+    <!-- Gradients for sexy look -->
+    <linearGradient id="gradInput" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4facfe" />
+      <stop offset="100%" stop-color="#00f2fe" />
+    </linearGradient>
+    <linearGradient id="gradEncoder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#43e97b" />
+      <stop offset="100%" stop-color="#38f9d7" />
+    </linearGradient>
+    <linearGradient id="gradDecoder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fa709a" />
+      <stop offset="100%" stop-color="#fee140" />
+    </linearGradient>
+    <linearGradient id="gradOutput" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a18cd1" />
+      <stop offset="100%" stop-color="#fbc2eb" />
+    </linearGradient>
+
+    <!-- Drop Shadow -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="5" stdDeviation="4" flood-opacity="0.3"/>
+    </filter>
+
+    <!-- Arrow head -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333" />
+    </marker>
+    <marker id="arrowSkip" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#888" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#1a1a1d" rx="15" />
+  <text x="500" y="40" font-family="sans-serif" font-size="22" font-weight="bold" fill="#fff" text-anchor="middle">3D ResNet Architecture for Brain Tumor Segmentation</text>
+
+  <!-- Sections -->
+  <!-- Encoder Block -->
+  <rect x="150" y="80" width="350" height="250" fill="#2c2f33" rx="10" filter="url(#shadow)" stroke="#43e97b" stroke-width="2"/>
+  <text x="325" y="110" font-family="sans-serif" font-size="16" font-weight="bold" fill="#fff" text-anchor="middle">Encoder Pipeline</text>
+
+  <!-- Decoder Block -->
+  <rect x="530" y="80" width="320" height="250" fill="#2c2f33" rx="10" filter="url(#shadow)" stroke="#fa709a" stroke-width="2"/>
+  <text x="690" y="110" font-family="sans-serif" font-size="16" font-weight="bold" fill="#fff" text-anchor="middle">Decoder Pipeline</text>
+
+  <!-- Input -->
+  <rect x="20" y="160" width="100" height="60" rx="8" fill="url(#gradInput)" filter="url(#shadow)" />
+  <text x="70" y="185" font-family="sans-serif" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">Input 3D MRI</text>
+  <text x="70" y="200" font-family="sans-serif" font-size="10" fill="#fff" text-anchor="middle">4 Modalities</text>
+  
+  <line x1="120" y1="190" x2="160" y2="190" stroke="#fff" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Encoder Nodes -->
+  <rect x="170" y="130" width="80" height="40" rx="6" fill="url(#gradEncoder)" filter="url(#shadow)" />
+  <text x="210" y="150" font-family="sans-serif" font-size="10" font-weight="bold" fill="#222" text-anchor="middle">Conv3D 7x7</text>
+  <text x="210" y="162" font-family="sans-serif" font-size="9" fill="#222" text-anchor="middle">BN + ReLU</text>
+
+  <rect x="170" y="190" width="80" height="40" rx="6" fill="url(#gradEncoder)" filter="url(#shadow)" />
+  <text x="210" y="210" font-family="sans-serif" font-size="10" font-weight="bold" fill="#222" text-anchor="middle">MaxPool3D</text>
+
+  <rect x="270" y="150" width="100" height="100" rx="8" fill="#3498db" filter="url(#shadow)" opacity="0.9" />
+  <text x="320" y="185" font-family="sans-serif" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">ResBlocks</text>
+  <text x="320" y="200" font-family="sans-serif" font-size="10" fill="#fff" text-anchor="middle">4 Stages</text>
+  <text x="320" y="215" font-family="sans-serif" font-size="9" fill="#fff" text-anchor="middle">(64 -> 512 ch)</text>
+
+  <line x1="210" y1="170" x2="210" y2="190" stroke="#fff" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="250" y1="200" x2="270" y2="200" stroke="#fff" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Decoder Nodes -->
+  <rect x="550" y="150" width="100" height="100" rx="8" fill="url(#gradDecoder)" filter="url(#shadow)" />
+  <text x="600" y="185" font-family="sans-serif" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">ConvTranspose</text>
+  <text x="600" y="200" font-family="sans-serif" font-size="10" fill="#222" text-anchor="middle">Upsampling</text>
+  <text x="600" y="215" font-family="sans-serif" font-size="9" fill="#222" text-anchor="middle">(512 -> 32 ch)</text>
+
+  <line x1="370" y1="200" x2="550" y2="200" stroke="#fff" stroke-width="3" marker-end="url(#arrow)" />
+  <text x="460" y="195" font-family="sans-serif" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">Bottleneck</text>
+
+  <!-- Output -->
+  <rect x="700" y="180" width="80" height="40" rx="6" fill="url(#gradDecoder)" filter="url(#shadow)" />
+  <text x="740" y="200" font-family="sans-serif" font-size="10" font-weight="bold" fill="#222" text-anchor="middle">Conv3D 1x1</text>
+  <text x="740" y="212" font-family="sans-serif" font-size="9" fill="#222" text-anchor="middle">Classifier</text>
+
+  <line x1="650" y1="200" x2="700" y2="200" stroke="#fff" stroke-width="2" marker-end="url(#arrow)" />
+
+  <rect x="830" y="170" width="100" height="60" rx="8" fill="url(#gradOutput)" filter="url(#shadow)" />
+  <text x="880" y="195" font-family="sans-serif" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">Segmentation</text>
+  <text x="880" y="210" font-family="sans-serif" font-size="10" fill="#222" text-anchor="middle">4 Classes</text>
+
+  <line x1="780" y1="200" x2="830" y2="200" stroke="#fff" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Skip Connections -->
+  <path d="M 320 150 Q 460 30 600 150" fill="none" stroke="#e74c3c" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrowSkip)" />
+  <text x="460" y="80" font-family="sans-serif" font-size="12" font-style="italic" fill="#e74c3c" text-anchor="middle">High-res Skip Connections</text>
+</svg>
