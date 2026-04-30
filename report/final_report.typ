@@ -178,4 +178,4 @@ This report successfully demonstrated advanced deep learning applications across
 
 #heading(numbering: none)[References]
 
-#bibliography("refs.yml", style: "ieee")
+#bibliography("refs.yml", style: "harvard-cite-them-right")
